@@ -1,0 +1,16 @@
+**/.venv
+**/.env
+**/.vscode
+**/__pycache__
+**/.mypy_cache
+**/.pytest_cache
+
+**/*.pyc
+**/.git
+**/.gitignore
+**/Makefile
+**/*.env
+**/Dockerfile
+**/*.Dockerfile
+**/docker-*.yml
+**/*.md

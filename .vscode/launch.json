@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug: API",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/api/main.py",
+            "env": {
+                "MIN_LOG_LEVEL": "DEBUG",
+                "REDIS_PORT": "16379",
+                "API_DELAY_MIN": "500",
+                "API_DELAY_MAX": "1_000",
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}
