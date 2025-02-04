@@ -1,0 +1,37 @@
+# Use an official Python runtime as a parent image
+FROM python:3.13-alpine
+
+# Set work directory
+WORKDIR /app
+
+# RUN apk update && apk add --update \
+#     alpine-sdk \
+#     && apk -v cache clean \
+#     && apk cache -v sync
+
+# Install Python Shared dependencies
+COPY shared_lib/requirements.txt shared_lib/requirements.txt
+RUN pip install --no-cache-dir -r shared_lib/requirements.txt
+
+# Install Python API dependencies
+COPY worker/requirements.txt worker/requirements.txt
+RUN pip install --no-cache-dir -r worker/requirements.txt
+
+# Expose port
+EXPOSE 8000
+
+# Copy shared library
+COPY shared_lib /app/shared_lib
+
+# Copy application code
+COPY worker /app/worker
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HOST=0.0.0.0 \
+    PORT=8000 \
+    PYTHONPATH=shared_lib:worker
+
+# Define default command
+CMD ["python", "/app/worker/main.py"]

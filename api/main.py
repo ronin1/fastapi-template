@@ -1,4 +1,3 @@
-# import asyncio
 from datetime import datetime
 import os
 import socket
@@ -26,7 +25,7 @@ app = FastAPI(
 
 
 @app.get("/")
-@app.get("/color/ping")
+@app.get("/color")
 async def health_check() -> Dict[str, Any]:
     current_time = datetime.now()
     resp = {
@@ -66,9 +65,9 @@ async def list_names(request: Request) -> ColorNamesResponse:
 
 
 if __name__ == "__main__":
-    host = os.getenv("HOST", "0.0.0.0")
-    port = os.getenv("PORT", "8000")
-    kargs = {
+    host = os.getenv("HOST", os.getenv("API_HOST", "0.0.0.0"))
+    port = os.getenv("PORT", os.getenv("API_PORT", "8000"))
+    kargs = { 
         "host": host,
         "port": int(port),
         "log_level": min_log_level()

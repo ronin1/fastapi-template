@@ -18,7 +18,7 @@ help:
 # Build the Docker images
 .PHONY: build
 build:
-	docker compose --profile all build api
+	docker compose --profile all build api worker
 
 .PHONY: run
 run: build docker-run
@@ -44,10 +44,16 @@ stop: docker-stop
 
 # the following make cmd are not official, use for adhoc api testing
 
+local-setup:
+	python3 -m venv .venv
+	source .venv/bin/activate
+	pip install -r shared_lib/requirements.txt
+	pip install -r api/requirements.txt
+
 docker-local-dev: build
 	docker compose --profile db up
 
-docker-test:
+docker-api-test:
 	@curl -sXGET 'http://localhost:${LOAD_BALANCER_PORT}' | jq .
 
 docker-color-match:

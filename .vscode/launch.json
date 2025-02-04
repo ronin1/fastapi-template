@@ -17,6 +17,20 @@
             },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug: Worker",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}${pathSeparator}worker${pathSeparator}main.py",
+            "env": {
+                "MIN_LOG_LEVEL": "DEBUG",
+                "REDIS_PORT": "16379",
+                "API_DELAY_MIN": "500",
+                "API_DELAY_MAX": "1_000",
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
         }
     ]
 }
