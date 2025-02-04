@@ -11,12 +11,16 @@ services:
       context: .
       dockerfile: api.Dockerfile
     image: ${API_IMAGE_NAME:-mock_api}
+    mem_limit: 500M
+    cpu_shares: 512
     profiles:
       - app
       - api
+      - all
     environment:
-      - HOST=${HOST}
-      - PORT=${PORT}
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-8000}
+      - MIN_LOG_LEVEL=${MIN_LOG_LEVEL:-info}
 
       - REDIS_HOST=${REDIS_HOST:-mem_db}
       - REDIS_PORT=${REDIS_PORT:-6379}
@@ -40,14 +44,17 @@ services:
 
   load_balancer:
     image: nginx:1-alpine
+    mem_limit: 256M
+    cpu_shares: 512
     profiles:
       - app
+      - all
     depends_on:
       - api
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "${LOAD_BALANCER_PORT}:80"
+      - "${LOAD_BALANCER_PORT:-8000}:80"
     networks:
       - app-network
     deploy:
@@ -57,8 +64,11 @@ services:
 
   mem_db:
     image: redis:7-alpine
+    mem_limit: 500M
+    cpu_shares: 1024
     profiles:
       - db
+      - all
     networks:
       - app-network
     ports:
@@ -76,8 +86,11 @@ services:
 
   sql_db:
     image: postgres:17-alpine
+    mem_limit: 1G
+    cpu_shares: 1024
     profiles:
       - db
+      - all
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=${POSTGRES_USER:-pguser}

@@ -9,6 +9,7 @@ export $(shell sed 's/=.*//' Makefile.env)
 help:
 	@echo "Available commands:"
 	@echo "  make build				Build the Docker images"
+	@echo "  make run				Standard run of the application"
 	@echo "  make docker-run		Run a single instance of the application on Docker"
 	@echo "  make docker-cluster	Run a cluster with load balancing on Docker"
 	@echo "  make docker-stop		Stop all running containers in Docker"
@@ -17,22 +18,25 @@ help:
 # Build the Docker images
 .PHONY: build
 build:
-	docker compose --env-file docker-compose.env build
+	docker compose --env-file docker-compose.env --profile all build api
+
+.PHONY: run
+run: build docker-run
 
 # Run a single instance of the application without load balancing on Docker
 .PHONY: docker-run
 docker-run: 
-	docker compose --env-file docker-compose.env up -d
+	docker compose --env-file docker-compose.env --profile all up -d
 
 # Run a cluster with load balancing on Docker
 .PHONY: docker-cluster
 docker-cluster: 
-	docker compose --env-file docker-compose.env up -d --scale api=${CLUSTER_SIZE}
+	docker compose --env-file docker-compose.env up --profile all -d --scale api=${CLUSTER_SIZE}
 
 # Stop all test docker containers
 .PHONY: docker-stop
 docker-stop:
-	docker compose --env-file docker-compose.env down
+	docker compose --env-file docker-compose.env --profile all down
 
 # Stop all running containers
 .PHONY: stop
