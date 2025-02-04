@@ -4,12 +4,12 @@ import os
 import socket
 from typing import Annotated, Dict, List, Any
 import uvicorn
-from logger import get_logger, min_log_level, log_config
 from fastapi import FastAPI, HTTPException, Query, status, Response, Request
 from services.color_matcher_with_storage import ColorMatcherWithStorage
 from services.color_matcher import ColorMatcher, ColorMatcherProtocol
 from services.color_matcher_with_delay import ColorMatcherWithDelay
 from services.schemas import MatchColorRequest, ColorMatched, ColorListResponse, ColorNamesResponse
+from logger_factory import get_logger, min_log_level, log_config
 
 
 boot_time = datetime.now()

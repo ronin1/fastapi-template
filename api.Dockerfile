@@ -2,7 +2,7 @@
 FROM python:3.13-alpine
 
 # Set work directory
-WORKDIR /app/api
+WORKDIR /app
 
 # RUN apk update && apk add --update \
 #     alpine-sdk \
@@ -12,6 +12,9 @@ WORKDIR /app/api
 # Install Python dependencies
 COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy shared library
+COPY shared_lib /app/shared_lib
 
 # Copy application code
 COPY api /app/api
@@ -23,7 +26,8 @@ EXPOSE 8000
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     HOST=0.0.0.0 \
-    PORT=8000
+    PORT=8000 \
+    PYTHONPATH=api:shared_lib
 
 # Define default command
-CMD ["python", "main.py"]
+CMD ["python", "/app/api/main.py"]

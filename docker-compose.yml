@@ -14,13 +14,14 @@ services:
     mem_limit: 500M
     cpu_shares: 512
     profiles:
-      - app
-      - api
       - all
     environment:
-      - HOST=${HOST:-0.0.0.0}
-      - PORT=${PORT:-8000}
       - MIN_LOG_LEVEL=${MIN_LOG_LEVEL:-info}
+
+      - HOST=${API_HOST:-0.0.0.0}
+      - PORT=${API_PORT:-8000}
+      - API_DELAY_MIN=${API_DELAY_MIN:-0}
+      - API_DELAY_MAX=${API_DELAY_MAX:-0}
 
       - REDIS_HOST=${REDIS_HOST:-mem_db}
       - REDIS_PORT=${REDIS_PORT:-6379}
@@ -47,7 +48,6 @@ services:
     mem_limit: 256M
     cpu_shares: 512
     profiles:
-      - app
       - all
     depends_on:
       - api

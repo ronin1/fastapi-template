@@ -8,7 +8,7 @@ from fastapi import Request
 from redis import Redis
 from services.color_matcher import ColorMatcherABC
 from services.schemas import ColorMatched
-from logger import get_logger
+from logger_factory import get_logger
 
 
 class ColorMatcherWithStorage(ColorMatcherABC):

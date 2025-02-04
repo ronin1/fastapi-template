@@ -53,7 +53,7 @@ def log_config() -> dict | None:
 
 
 def min_log_level() -> int:
-    min_log = os.getenv("MIN_LOG_LEVEL", "INFO")
+    min_log = os.getenv("MIN_LOG_LEVEL", "INFO").upper()
     if min_log == "DEBUG":
         return logging.DEBUG
     if min_log == "INFO":

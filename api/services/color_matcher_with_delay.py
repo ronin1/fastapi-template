@@ -5,7 +5,7 @@ from typing import List
 import os
 from services.color_matcher import ColorMatcherABC
 from services.schemas import ColorMatched
-from logger import get_logger
+from logger_factory import get_logger
 
 
 class ColorMatcherWithDelay(ColorMatcherABC):
