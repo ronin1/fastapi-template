@@ -2,8 +2,8 @@ networks:
   app-network:
     driver: bridge
 
-volumes:
-  pg_data_17:
+# volumes:
+#   pg_data_17:
 
 services:
 
