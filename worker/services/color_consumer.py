@@ -18,7 +18,7 @@ class ColorConsumer:
     _pg_conn: asyncpg.Connection | None = None
     logger = get_logger(__name__)
 
-    def __init__(self, empty_delay_s: float = 3, empty_print_s: int = 60):
+    def __init__(self, empty_delay_s: float = 2, empty_print_s: int = 60):
         self._init_redis()
         self._empty_delay_s = empty_delay_s
         self._empty_print_s = int(empty_print_s)  # how many seconds to wait between printing empty result reminder
@@ -87,7 +87,8 @@ class ColorConsumer:
             try:
                 msg = self._redis.rpop(COLOR_LIST_NAME)
                 if msg is None:
-                    msg = self._redis.brpop([COLOR_LIST_NAME], timeout=int(self._empty_delay_s))
+                    await asyncio.sleep(self._empty_delay_s)
+                    # msg = self._redis.brpop([COLOR_LIST_NAME], timeout=int(self._empty_delay_s))
                 if not msg:
                     since_sec = int((datetime.now() - self._last_pull).total_seconds())
                     mod_count = since_sec % self._empty_print_s

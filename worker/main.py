@@ -24,8 +24,8 @@ app = FastAPI(
 
 def log() -> Logger:
     if not hasattr(app, "logger"):
-        app.logger = get_logger(__name__)
-    return app.logger
+        app.logger = get_logger(__name__)  # type: ignore
+    return app.logger  # type: ignore
 
 @app.get("/")
 @app.get("/worker")
@@ -44,10 +44,6 @@ async def health_check() -> Dict[str, Any]:
 
 async def main() -> None:
     try:
-        # fork side loop
-        consumer = ColorConsumer()
-        asyncio.create_task(consumer.pull_event_loop())
-
         # setup blocking API service
         host = os.getenv("HOST", os.getenv("WORKER_HOST", "0.0.0.0"))
         port = os.getenv("PORT", os.getenv("WORKER_PORT", "8001"))
@@ -61,9 +57,13 @@ async def main() -> None:
             kargs["log_config"] = fmt
         cfg = uvicorn.Config(app, **kargs)
         svr = uvicorn.Server(cfg)
-        await svr.serve()
-        consumer.cleanup()
-    except Exception as e:
+
+        consumer = ColorConsumer()
+        asyncio.create_task(consumer.pull_event_loop())  # fork side loop
+
+        await svr.serve()  # blocking call, launch the server
+        await consumer.cleanup()
+    except Exception as e:  # pylint: disable=broad-except
         log().error("Worker fault: %s", e)
     finally:
         log().info("Worker exiting...")

@@ -10,10 +10,9 @@ export $(shell sed 's/=.*//' .env)
 help:
 	@echo "Available commands:"
 	@echo "  make build				Build the Docker images"
-	@echo "  make run				Standard run of the application"
-	@echo "  make docker-run		Run a single instance of the application on Docker"
-	@echo "  make docker-cluster	Run a cluster with load balancing on Docker"
-	@echo "  make docker-stop		Stop all running containers in Docker"
+	@echo "  make run				Standard run of the application as containers"
+	@echo "  make run-db			Run only Redis & Postgres containers for local debugging"
+	@echo "  make run-cluster	Run a cluster with load balancing on Docker"
 	@echo "  make stop				Stop all running containers"
 
 # Build the Docker images
@@ -21,27 +20,24 @@ help:
 build:
 	docker compose --profile all build api worker
 
-.PHONY: run
-run: build docker-run
-
 # Run a single instance of the application without load balancing on Docker
-.PHONY: docker-run
-docker-run: 
+.PHONY: run
+run: build
 	docker compose --profile all up
 
 # Run a cluster with load balancing on Docker
-.PHONY: docker-cluster
-docker-cluster: 
-	docker compose up --profile all --scale api=${CLUSTER_SIZE}
+.PHONY: run-cluster
+run-cluster: 
+	docker compose up --profile all --scale api=${API_CLUSTER_SIZE} --scale worker=${WORKER_CLUSTER_SIZE}
 
-# Stop all test docker containers
-.PHONY: docker-stop
-docker-stop:
-	docker compose --profile all down
+.PHONY: run-db
+run-db: build
+	docker compose --profile db up
 
 # Stop all running containers
 .PHONY: stop
-stop: docker-stop
+stop:
+	docker compose --profile all down
 
 # the following make cmd are not official, use for adhoc api testing
 
@@ -52,32 +48,29 @@ local-setup:
 		pip3 install -r api/requirements.txt && \
 		pip3 install -r worker/requirements.txt)
 
-run-db: build
-	docker compose --profile db up
-
-docker-api-test:
+check-api:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color'
 
-docker-worker-test:
+check-worker:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/worker'
 
-docker-loadbalancer-test:
+check-nginx:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}'
 
-docker-color-match:
+test-color-match:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/match?name=light+blue'
 
-docker-color-match2:
+test-color-match2:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/match?name=green'
 
-docker-hex-match:
+test-hex-match:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/match?name=ffffff'
 
-docker-hex-match2:
+test-hex-match2:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/match?name=000'
 
-docker-color-names:
+test-color-names:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/names'
 
-docker-color-error:
+test-color-error:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/match?name=er'
