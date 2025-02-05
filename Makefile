@@ -12,8 +12,10 @@ help:
 	@echo "  make build				Build the Docker images"
 	@echo "  make run				Standard run of the application as containers"
 	@echo "  make run-db			Run only Redis & Postgres containers for local debugging"
-	@echo "  make run-cluster	Run a cluster with load balancing on Docker"
+	@echo "  make run-cluster		Run a cluster with load balancing on Docker"
 	@echo "  make stop				Stop all running containers"
+	@echo "  make local-setup		Setup local development environment"
+	@echo "  make debug				Launch single instances of containers setup for remote debugging"
 
 # Build the Docker images
 .PHONY: build
@@ -39,14 +41,25 @@ run-db: build
 stop:
 	docker compose --profile all down
 
-# the following make cmd are not official, use for adhoc api testing
+# the following scripts are meant for local development & debugging, not required to run the application in docker
 
+# this setup ensure vscode can run the application in debug mode and all required linter passes
+.PHONY: local-setup
 local-setup:
 	@(python3 -m venv .venv && \
 		source .venv/bin/activate && \
 		pip3 install -r shared_lib/requirements.txt && \
 		pip3 install -r api/requirements.txt && \
-		pip3 install -r worker/requirements.txt)
+		pip3 install -r worker/requirements.txt && \
+		pip3 install -r debug_requirements.txt)
+
+# this launch single instances of API & worker with a single thread
+.PHONY: debug
+debug: build
+	API_CLUSTER_SIZE=1 WORKER_CLUSTER_SIZE=1 WORKER_THREADS=1 \
+		docker compose -f docker-compose.yml -f docker-compose.debug.yml --profile all up
+
+# quick health checks
 
 check-api:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color'
@@ -56,6 +69,8 @@ check-worker:
 
 check-nginx:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}'
+
+# api input tests
 
 test-color-match:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/match?name=light+blue'
