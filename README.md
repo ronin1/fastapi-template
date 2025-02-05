@@ -170,8 +170,14 @@ This is the simplest setup. To start, change directory to project root in your s
 
 ```bash
 # do the initial setup if you haven't done it already. 
-# It will create an virtual environment with all depdencies installed at ./.venv
-[project_root]$ make local-setup
+# It will create an virtual environment with all depdencies installed at ./.venv.
+[project_root]$ python3 -m venv .venv
+[project_root]$ source .venv/bin/activate
+# now install all packages
+[project_root]$ pip3 install -r shared_lib/requirements.txt
+[project_root]$ pip3 install -r api/requirements.txt
+[project_root]$ pip3 install -r worker/requirements.txt
+# you only need to do these above steps once
 
 # if you're not running the above, active your virtual environment
 [project_root]$ source .venv/bin/active
