@@ -27,7 +27,7 @@ run: build
 
 # Run a cluster with load balancing on Docker
 .PHONY: run-cluster
-run-cluster: 
+run-cluster: build
 	docker compose --profile all up
 
 .PHONY: run-db

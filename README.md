@@ -37,6 +37,16 @@ Similar to the above API you can use `GET /` or `GET /worker` as health check pi
 
 Worker subscribe to the same Redis List named: `color_match_results` as API. It also writes received messages from this Redis list into Postgres, into a table name `color_matches` in the `dev` schema.  You can see table structure in `./db/000_schema.sql`
 
+#### Multi-threaded worker
+
+By default, each worker will fork 2 threads for `color_consumer.py`. The value is configurable in `.env`. 
+
+```env
+WORKER_THREADS=2
+```
+
+The main thread is used to serve a simple API endpoint for container health check.  This can be expanded and used as an "internal" API also.
+
 ## Running the App for the First Time
 
 Assuming you have `Docker` v27+ installed properly with `make` and you're on Linux or a variant of Unix (like MacOS). To build & run the whole thing, simply execute the following from repository root path:

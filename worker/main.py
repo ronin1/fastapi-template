@@ -10,9 +10,9 @@ from logger_factory import get_logger, min_log_level, log_config
 from services.color_consumer import ColorConsumer
 
 
-boot_time = datetime.now()
-host_name = socket.gethostname()
-logger = get_logger(__name__)
+_boot_time = datetime.now()
+_host_name = socket.gethostname()
+
 
 app = FastAPI(
     title="Color Worker for DevOps Testing",
@@ -22,10 +22,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
 def log() -> Logger:
     if not hasattr(app, "logger"):
         app.logger = get_logger(__name__)  # type: ignore
     return app.logger  # type: ignore
+
 
 @app.get("/")
 @app.get("/worker")
@@ -33,40 +35,46 @@ async def health_check() -> Dict[str, Any]:
     current_time = datetime.now()
     resp = {
         "status": "OK",
-        "name": "color worker",
-        "host": host_name,
-        "boot": boot_time,
-        "alive": str(current_time - boot_time)
+        "name": "color worker 🤖",
+        "host": _host_name,
+        "boot": _boot_time,
+        "alive": str(current_time - _boot_time)
     }
-    log().debug("Health check: OK for %s", host_name)
+    log().debug("Health check: OK for %s", _host_name)
     return resp
+
+
+def _api_setup() -> uvicorn.Server:
+    host = os.getenv("HOST", os.getenv("WORKER_HOST", "0.0.0.0"))
+    port = os.getenv("PORT", os.getenv("WORKER_PORT", "8000"))
+    kargs = {
+        "host": host,
+        "port": int(port),
+        "log_level": min_log_level()
+    }
+    fmt = log_config()
+    if fmt is not None:
+        kargs["log_config"] = fmt
+    cfg = uvicorn.Config(app, **kargs)
+    svr = uvicorn.Server(cfg)
+    return svr
 
 
 async def main() -> None:
     try:
-        # setup blocking API service
-        host = os.getenv("HOST", os.getenv("WORKER_HOST", "0.0.0.0"))
-        port = os.getenv("PORT", os.getenv("WORKER_PORT", "8001"))
-        kargs = {
-            "host": host,
-            "port": int(port),
-            "log_level": min_log_level()
-        }
-        fmt = log_config()
-        if fmt is not None:
-            kargs["log_config"] = fmt
-        cfg = uvicorn.Config(app, **kargs)
-        svr = uvicorn.Server(cfg)
+        svr = _api_setup()  # configure API server
+        consumer = ColorConsumer()  # setup consumer
+        worker_threads = int(os.getenv("WORKER_THREADS", "1")) or 1
+        for _ in range(worker_threads):
+            asyncio.create_task(consumer.pull_event_loop())  # fork consumer on a side loops
 
-        consumer = ColorConsumer()
-        asyncio.create_task(consumer.pull_event_loop())  # fork side loop
-
-        await svr.serve()  # blocking call, launch the server
-        await consumer.cleanup()
+        await svr.serve()  # start API server. This is ablocking call on the main thread
+        await consumer.cleanup()  # once the API server is closed, this statement will run
     except Exception as e:  # pylint: disable=broad-except
         log().error("Worker fault: %s", e)
+        raise e
     finally:
-        log().info("Worker exiting...")
+        log().info("Worker exiting. Good bye 👋")
 
 
 # SEE: https://stackoverflow.com/questions/76142431/how-to-run-another-application-within-the-same-running-event-loop
