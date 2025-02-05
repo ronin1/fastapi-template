@@ -5,13 +5,13 @@ import binascii
 import pickle
 from datetime import datetime
 from fastapi import Request
-from redis import Redis
-from services.color_matcher import ColorMatcherABC
-from services.schemas import ColorMatched
+from redis import StrictRedis as Redis
 from logger_factory import get_logger
+from shared_schemas import ColorMatched, COLOR_LIST_NAME
+from services.color_matcher import ColorMatcherABC
 
 
-class ColorMatcherWithStorage(ColorMatcherABC):
+class ColorMatcherWithPublisher(ColorMatcherABC):
     _redis: Redis | None = None
     logger = get_logger(__name__)
 
@@ -33,13 +33,17 @@ class ColorMatcherWithStorage(ColorMatcherABC):
 
     def _publish(self, key_name: str, data: Any):
         if self._redis is None:
+            self.logger.error("Redis connection is not initialized")
             return
+
         buf = pickle.dumps(data)
+        # s = buf.decode('utf-8')
         s = base64.b64encode(buf)
         self._redis.lpush(key_name, s)
 
     def _publish_colors(self, colors: List[ColorMatched]):
         if self._redis is None:
+            self.logger.error("Redis connection is not initialized")
             return
 
         now_crc = binascii.crc32(datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode('utf-8'))
@@ -54,7 +58,7 @@ class ColorMatcherWithStorage(ColorMatcherABC):
             },
             "colors": colors
         }
-        self._publish("color-match", evt)
+        self._publish(COLOR_LIST_NAME, evt)
 
     def match(self, name) -> List[ColorMatched]:
         res = self.__matcher.match(name)

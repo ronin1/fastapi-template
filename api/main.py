@@ -1,19 +1,19 @@
 from datetime import datetime
+from logging import Logger
 import os
 import socket
 from typing import Annotated, Dict, List, Any
 import uvicorn
 from fastapi import FastAPI, HTTPException, Query, status, Response, Request
-from services.color_matcher_with_storage import ColorMatcherWithStorage
+from services.color_matcher_with_publisher import ColorMatcherWithPublisher
 from services.color_matcher import ColorMatcher, ColorMatcherProtocol
 from services.color_matcher_with_delay import ColorMatcherWithDelay
-from services.schemas import MatchColorRequest, ColorMatched, ColorListResponse, ColorNamesResponse
+from services.api_schemas import MatchColorRequest, ColorMatched, ColorListResponse, ColorNamesResponse
 from logger_factory import get_logger, min_log_level, log_config
 
 
 boot_time = datetime.now()
 host_name = socket.gethostname()
-logger = get_logger(__name__)
 
 app = FastAPI(
     title="Color API for DevOps Testing",
@@ -23,6 +23,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
+def log() -> Logger:
+    if not hasattr(app, "logger"):
+        app.logger = get_logger(__name__)
+    return app.logger
 
 @app.get("/")
 @app.get("/color")
@@ -35,12 +39,12 @@ async def health_check() -> Dict[str, Any]:
         "boot": boot_time,
         "alive": str(current_time - boot_time)
     }
-    logger.debug("Health check: OK for %s", host_name)
+    log().debug("Health check: OK for %s", host_name)
     return resp
 
 
 def resolve_color_matcher(req: Request) -> ColorMatcherProtocol:
-    return ColorMatcherWithDelay(ColorMatcherWithStorage(ColorMatcher(), req))  # decorator pattern
+    return ColorMatcherWithDelay(ColorMatcherWithPublisher(ColorMatcher(), req))  # decorator pattern
 
 
 @app.get("/color/match", response_model=ColorListResponse)
@@ -64,7 +68,7 @@ async def list_names(request: Request) -> ColorNamesResponse:
     return ColorNamesResponse(count=len(names), names=names)
 
 
-if __name__ == "__main__":
+def main() -> None:
     host = os.getenv("HOST", os.getenv("API_HOST", "0.0.0.0"))
     port = os.getenv("PORT", os.getenv("API_PORT", "8000"))
     kargs = { 
@@ -76,3 +80,7 @@ if __name__ == "__main__":
     if fmt is not None:
         kargs["log_config"] = fmt
     uvicorn.run(app, **kargs)  # type: ignore
+
+
+if __name__ == "__main__":
+    main()

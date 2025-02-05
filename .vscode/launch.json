@@ -10,11 +10,14 @@
             "request": "launch",
             "program": "${workspaceFolder}${pathSeparator}api${pathSeparator}main.py",
             "env": {
-                "MIN_LOG_LEVEL": "DEBUG",
                 "REDIS_PORT": "16379",
+                "POSTGRES_PORT": "15432",
+
+                "API_PORT": "3000",
                 "API_DELAY_MIN": "500",
                 "API_DELAY_MAX": "1_000",
             },
+            "envFile": "${workspaceFolder}${pathSeparator}.env",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -24,11 +27,14 @@
             "request": "launch",
             "program": "${workspaceFolder}${pathSeparator}worker${pathSeparator}main.py",
             "env": {
-                "MIN_LOG_LEVEL": "DEBUG",
                 "REDIS_PORT": "16379",
-                "API_DELAY_MIN": "500",
-                "API_DELAY_MAX": "1_000",
+                "POSTGRES_PORT": "15432",
+
+                "WORKER_PORT": "3001",
+                "WORKER_DELAY_MIN": "500",
+                "WORKER_DELAY_MAX": "1_000",
             },
+            "envFile": "${workspaceFolder}${pathSeparator}.env",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         }

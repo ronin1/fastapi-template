@@ -3,7 +3,7 @@ import json
 import os
 import re
 from typing import Any, Dict, List, Protocol, Tuple
-from services.schemas import ColorMatched
+from services.api_schemas import ColorMatched
 from logger_factory import get_logger
 
 

@@ -4,7 +4,7 @@ import random
 from typing import List
 import os
 from services.color_matcher import ColorMatcherABC
-from services.schemas import ColorMatched
+from services.api_schemas import ColorMatched
 from logger_factory import get_logger
 
 

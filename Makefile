@@ -50,11 +50,23 @@ local-setup:
 	pip install -r shared_lib/requirements.txt
 	pip install -r api/requirements.txt
 
-docker-local-dev: build
+run-only-db: build
 	docker compose --profile db up
 
+# run-only-api: build
+# 	docker compose --profile db --profile api up
+
+# run-only-worker: build
+# 	docker compose --profile db --profile worker up
+
 docker-api-test:
-	@curl -sXGET 'http://localhost:${LOAD_BALANCER_PORT}' | jq .
+	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color'
+
+docker-worker-test:
+	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/worker'
+
+docker-loadbalancer-test:
+	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}'
 
 docker-color-match:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color/match?name=light+blue'
