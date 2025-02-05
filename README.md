@@ -211,7 +211,7 @@ Once launched, there should be already 2 debuging profiles setup (under `.vscode
 
 ### Container attach Debug via Python Remote Debugger
 
-Since the code is running on Alpine Linux (not a typical distro for deskt-top use). Sometimes it's still best to debug & test the code within the container and observe its behavior within the actual OS being used in actual deployment.
+Since the code is running on Alpine Linux (not a typical distro for desktop use). Sometimes it's still best to debug & test the code within the container and observe its behavior within the actual OS being used in actual deployment.
 
 Debugging assumes you have Visual Studio Code setup with all above plugins mentioned.
 
