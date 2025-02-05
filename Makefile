@@ -42,7 +42,7 @@ stop:
 # the following make cmd are not official, use for adhoc api testing
 
 local-setup:
-	@(python3 -m venv .venv --without-pip && \
+	@(python3 -m venv .venv && \
 		source .venv/bin/activate && \
 		pip3 install -r shared_lib/requirements.txt && \
 		pip3 install -r api/requirements.txt && \
