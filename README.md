@@ -97,7 +97,7 @@ Content-Type: application/json
 Content-Length: 117
 Connection: keep-alive
 
-{"status":"OK","name":"color api","host":"ac95b94d48f3","boot":"2025-02-05T04:25:47.473431","alive":"0:31:19.263662"}
+{"status":"OK","name":"color api 🎨","host":"ac95b94d48f3","boot":"2025-02-05T04:25:47.473431","alive":"0:31:19.263662"}
 
 # to check Worker
 $ curl -iXGET 'http://localhost:8000/worker'
@@ -174,7 +174,7 @@ To do this, you'll need Python 3.10+ installed & the latest VisualStudio code & 
 - CMake Tools - Microsoft
 - Makefile Tools - Microsoft
 - Docker - Microsoft
-- YAML - Mot Microsoft: Red Hat 😅
+- YAML - Not Microsoft: Red Hat 😅
 
 This is the simplest setup. To start, change directory to project root in your shell, then:
 
