@@ -106,7 +106,8 @@ I added these make commands to help with testing. **NOTE** that all of these tes
 Artifical thread sleep can be injected into both the `API` & the `Worker` app to simulate heavy work.  Both of these values can be changed in `.env` (along with the cluster size)
 
 ```env
-# artifical delay settings. Upper & lower bound can be the same number. Setting both to 0 disables artifical delay.
+# artifical delay settings. 
+# Upper & lower bound can be the same value. Setting both to 0 disables delay.
 
 API_DELAY_MIN=100
 API_DELAY_MAX=150
@@ -129,7 +130,8 @@ VisualStudio Code configuration are checked in for easy debugging without any se
 This is the simplest setup. To start, change directory to project root in your shell, then:
 
 ```sh
-# do the initial setup if you haven't done it already. It will create an virtual environment with all depdencies installed at ./.venv
+# do the initial setup if you haven't done it already. 
+# It will create an virtual environment with all depdencies installed at ./.venv
 [project_root]$ make local-setup
 
 # if you're not running the above, active your virtual environment
