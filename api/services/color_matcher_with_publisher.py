@@ -47,10 +47,11 @@ class ColorMatcherWithPublisher(ColorMatcherABC):
             return
 
         now_crc = binascii.crc32(datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode('utf-8'))
-        epoch = datetime.utcfromtimestamp(0)
+        epoch = int(datetime.now().timestamp())
         evt = {
             "user": self.request.headers.get("X-User") or self.request.query_params.get("user") or f"_{now_crc % 100}",
-            "run": self.request.headers.get("X-Run") or self.request.query_params.get("run") or f"_{epoch}",
+            "run": self.request.headers.get("X-Run") or self.request.query_params.get("run") or f"_{epoch % 60}",
+            "input": self.request.query_params.get("name") or "",
             "request": {
                 "url": self.request.url.path,
                 "query": dict(self.request.query_params),

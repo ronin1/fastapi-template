@@ -25,8 +25,8 @@ app = FastAPI(
 
 def log() -> Logger:
     if not hasattr(app, "logger"):
-        app.logger = get_logger(__name__)
-    return app.logger
+        app.logger = get_logger(__name__)  # type: ignore
+    return app.logger  # type: ignore
 
 @app.get("/")
 @app.get("/color")

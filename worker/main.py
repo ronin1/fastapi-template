@@ -43,24 +43,30 @@ async def health_check() -> Dict[str, Any]:
 
 
 async def main() -> None:
-    # fork side loop
-    consumer = ColorConsumer()
-    asyncio.create_task(consumer.pull_loop())
+    try:
+        # fork side loop
+        consumer = ColorConsumer()
+        asyncio.create_task(consumer.pull_event_loop())
 
-    # setup blocking API service
-    host = os.getenv("HOST", os.getenv("WORKER_HOST", "0.0.0.0"))
-    port = os.getenv("PORT", os.getenv("WORKER_PORT", "8001"))
-    kargs = {
-        "host": host,
-        "port": int(port),
-        "log_level": min_log_level()
-    }
-    fmt = log_config()
-    if fmt is not None:
-        kargs["log_config"] = fmt
-    cfg = uvicorn.Config(app, **kargs)
-    svr = uvicorn.Server(cfg)
-    await svr.serve()
+        # setup blocking API service
+        host = os.getenv("HOST", os.getenv("WORKER_HOST", "0.0.0.0"))
+        port = os.getenv("PORT", os.getenv("WORKER_PORT", "8001"))
+        kargs = {
+            "host": host,
+            "port": int(port),
+            "log_level": min_log_level()
+        }
+        fmt = log_config()
+        if fmt is not None:
+            kargs["log_config"] = fmt
+        cfg = uvicorn.Config(app, **kargs)
+        svr = uvicorn.Server(cfg)
+        await svr.serve()
+        consumer.cleanup()
+    except Exception as e:
+        log().error("Worker fault: %s", e)
+    finally:
+        log().info("Worker exiting...")
 
 
 # SEE: https://stackoverflow.com/questions/76142431/how-to-run-another-application-within-the-same-running-event-loop

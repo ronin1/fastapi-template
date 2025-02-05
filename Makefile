@@ -1,4 +1,5 @@
 # Makefile
+SHELL := /bin/bash
 
 # Load environment variables
 include .env
@@ -45,19 +46,14 @@ stop: docker-stop
 # the following make cmd are not official, use for adhoc api testing
 
 local-setup:
-	python3 -m venv .venv
-	source .venv/bin/activate
-	pip install -r shared_lib/requirements.txt
-	pip install -r api/requirements.txt
+	@(python3 -m venv .venv && \
+		source .venv/bin/activate && \
+		pip3 install -r shared_lib/requirements.txt && \
+		pip3 install -r api/requirements.txt && \
+		pip3 install -r worker/requirements.txt)
 
-run-only-db: build
+run-db: build
 	docker compose --profile db up
-
-# run-only-api: build
-# 	docker compose --profile db --profile api up
-
-# run-only-worker: build
-# 	docker compose --profile db --profile worker up
 
 docker-api-test:
 	@curl -iXGET 'http://localhost:${LOAD_BALANCER_PORT}/color'

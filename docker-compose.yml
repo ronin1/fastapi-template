@@ -136,7 +136,9 @@ services:
     ports:
       - 15432:5432
     volumes:
-      - pg_data_17:/var/lib/postgresql/data
+      # NOTE: uncomment the line bellow to persist the data to virtual volume
+      # - pg_data_17:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pguser} -d ${POSTGRES_DB:-dev}"]
       interval: 5s
