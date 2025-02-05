@@ -33,7 +33,7 @@ services:
       sql_db:
         condition: service_started
     deploy:
-      replicas: 1
+      replicas: ${API_CLUSTER_SIZE:-1}
       restart_policy:
         condition: on-failure
     networks:
@@ -71,7 +71,7 @@ services:
       sql_db:
         condition: service_healthy
     deploy:
-      replicas: 1
+      replicas: ${WORKER_CLUSTER_SIZE:-1}
       restart_policy:
         condition: on-failure
     networks:
@@ -94,7 +94,7 @@ services:
     networks:
       - app-network
     deploy:
-      replicas: 1
+      replicas: ${LOAD_BALANCER_CLUSTER_SIZE:-1}
       restart_policy:
         condition: on-failure
 

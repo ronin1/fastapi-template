@@ -23,12 +23,12 @@ build:
 # Run a single instance of the application without load balancing on Docker
 .PHONY: run
 run: build
-	docker compose --profile all up
+	API_CLUSTER_SIZE=1 WORKER_CLUSTER_SIZE=1 docker compose --profile all up
 
 # Run a cluster with load balancing on Docker
 .PHONY: run-cluster
 run-cluster: 
-	docker compose up --profile all --scale api=${API_CLUSTER_SIZE} --scale worker=${WORKER_CLUSTER_SIZE}
+	docker compose --profile all up
 
 .PHONY: run-db
 run-db: build
@@ -42,7 +42,7 @@ stop:
 # the following make cmd are not official, use for adhoc api testing
 
 local-setup:
-	@(python3 -m venv .venv && \
+	@(python3 -m venv .venv --without-pip && \
 		source .venv/bin/activate && \
 		pip3 install -r shared_lib/requirements.txt && \
 		pip3 install -r api/requirements.txt && \

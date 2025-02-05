@@ -39,7 +39,7 @@ Worker subscribe to the same Redis List named: `color_match_results` as API. It 
 
 ## Running the App for the First Time
 
-Assuming you have `Docker` installed properly with `make` and you're on Linux or a variant of Unix (like MacOS). To build & run the whole thing, simply execute the following from repository root path:
+Assuming you have `Docker` v27+ installed properly with `make` and you're on Linux or a variant of Unix (like MacOS). To build & run the whole thing, simply execute the following from repository root path:
 
 ```bash
 # this will build all local containers & launch docker-compose.yml
@@ -151,7 +151,7 @@ VisualStudio Code configuration are checked in for easy debugging without any se
 
 ### Local Workstation Debug via Python Virtual Environment
 
-To do this, you'll need Python 3.13+ installed & the latest VisualStudio code & these recommended (but optional) extensions:
+To do this, you'll need Python 3.10+ installed & the latest VisualStudio code & these recommended (but optional) extensions:
 
 - Python - by Microsoft
 - Python Debugger - also by Microsoft
