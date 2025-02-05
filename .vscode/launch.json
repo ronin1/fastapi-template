@@ -19,7 +19,23 @@
             },
             "envFile": "${workspaceFolder}${pathSeparator}.env",
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "autoReload": {
+                "enable": true,
+                "exclude": [
+                    "**/.git/**",
+                    "**/__pycache__/**",
+                    "**/node_modules/**",
+                    "**/.metadata/**",
+                    "**/site-packages/**",
+                    "**/.venv/**"
+                ],
+                "include": [
+                    "**/*.py",
+                    "**/*.pyw"
+                ]
+            }
         },
         {
             "name": "Debug: Local Worker",  // launch the worker on your workstation with an attached local debugger
@@ -37,7 +53,23 @@
             },
             "envFile": "${workspaceFolder}${pathSeparator}.env",
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "autoReload": {
+                "enable": true,
+                "exclude": [
+                    "**/.git/**",
+                    "**/__pycache__/**",
+                    "**/node_modules/**",
+                    "**/.metadata/**",
+                    "**/site-packages/**",
+                    "**/.venv/**"
+                ],
+                "include": [
+                    "**/*.py",
+                    "**/*.pyw"
+                ]
+            }
         },
         {
             "name": "Attach: Docker API",  // attach to an existing API container running via: make debug
@@ -53,7 +85,7 @@
                     "remoteRoot": "."
                 }
             ],
-            "justMyCode": true
+            "justMyCode": true,
         },
         {
             "name": "Attach: Docker Worker",  // attach to an existing worker container running via: make debug

@@ -204,7 +204,10 @@ Once launched, there should be already 2 debuging profiles setup (under `.vscode
 - `Debug: Local API` - this will launch the API and attach it to port `3000`
 - `Debug: Local Worker` - this will launch worker and attach it to port `3001`
 
-**Note** that the above 2 debug profiles will need Redis & Postgres running or they will fail (API only needs Redis).  These profiles are designed to work with the exposed database ports.
+**Note** that 
+
+- the above 2 debug profiles will need Redis & Postgres running or they will fail (API only needs Redis).  These profiles are designed to work with the exposed database ports.
+- Hot re-loading (live code editting) while debugging is only supported with local debugger. Container based debugging is not yet setup for live hot reloading.
 
 ### Container attach Debug via Python Remote Debugger
 
@@ -233,7 +236,13 @@ Now select one of the following `DEBUG AND RUN` profile & launch it:
 
 You can now attach a debugger break point on the health check endpoint located in `api/main.py` (or `worker/main.py`; search for `@app.get("/")`).  Make a simple API request via curl: `curl 'localhost:8000/color'`.  Your vs code deugger should pause on your break point. Both containers can be attached to at once!
 
-**NOTE:** `make debug` by default does not pause the container and wait for a debugger to be attached.  If you need this behavior, simply edit `.env` file and toggle the following env vars for the appropriate container.
+Local `./api`, `./worker`, & `./shared_lib` is mounted in the launched docker containers. Changes made locally via VsCode or directly within the container will modify the same files (locally).  If you need to install `ipdb`, you can do so by uncommenting the line in `./debug_requirements.txt`
+
+**NOTE:**
+
+- `make debug` by default does not pause the container and wait for a debugger to be attached.  If you need this behavior, simply edit `.env` file and toggle the following env vars for the appropriate container.
+- Runing in container debug mode will also persists Redis & Postgres data. In all other mode all database data are not kept on container exit with `make stop`
+
 
 ```env
 # set value to 1 if you want these container to wait for an attach debugger before starting via: make debug
