@@ -15,7 +15,7 @@ Fork this repository and use it as the base for a barebone Python [FastAPI](http
 
 ## Running the App for the First Time
 
-To build & run the whole thing, simply execute the following from repository root path:
+Assuming you have `Docker` installed properly with `make` and you're on Linux or a variant of Unix (like MacOS). To build & run the whole thing, simply execute the following from repository root path:
 
 ```sh
 # this will build all local containers & launch docker-compose.yml
@@ -126,6 +126,21 @@ WORKER_CLUSTER_SIZE=2
 VisualStudio Code configuration are checked in for easy debugging without any setup. This author assumes you're using Linux or some variation of Unix (MacOS).  Debugging might not work on Windows unless you're using Linux sub-system.
 
 ### Local Workstation Debug via Python Virtual Environment
+
+To do this, you'll need Python 3.13+ installed & the latest VisualStudio code & these recommended (but optional) extensions:
+
+- Python - by Microsoft
+- Python Debugger - also by Microsoft
+- autopep8 - also by Microsoft
+- Back Formatter - you guest it, Microsoft
+- Flake8 - Microsoft
+- Gather - Microsoft
+- isort - Microsoft
+- Mypy Type Checker - Microsoft
+- CMake Tools - Microsoft
+- Makefile Tools - Microsoft
+- Docker - Microsoft
+- YAML - Mot Microsoft: Red Hat 😅
 
 This is the simplest setup. To start, change directory to project root in your shell, then:
 
