@@ -101,6 +101,25 @@ I added these make commands to help with testing. **NOTE** that all of these tes
 [project_root]$ make test-color-error
 ```
 
+### Load Testing
+
+Artifical thread sleep can be injected into both the `API` & the `Worker` app to simulate heavy work.  Both of these values can be changed in `.env` (along with the cluster size)
+
+```env
+# artifical delay settings. Upper & lower bound can be the same number. Setting both to 0 disables artifical delay.
+
+API_DELAY_MIN=100
+API_DELAY_MAX=150
+
+WORKER_DELAY_MIN=100
+WORKER_DELAY_MAX=150
+
+# you can also change the cluster size for: make run-cluster
+
+API_CLUSTER_SIZE=2
+WORKER_CLUSTER_SIZE=2
+```
+
 ## Debugging
 
 VisualStudio Code configuration are checked in for easy debugging without any setup. This author assumes you're using Linux or some variation of Unix (MacOS).  Debugging might not work on Windows unless you're using Linux sub-system.
