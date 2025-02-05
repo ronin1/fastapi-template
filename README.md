@@ -31,7 +31,7 @@ REDIS_COLOR_LIST_NAME=color_match_results
 
 API does not connect to Postgres.
 
-### Worker Endponts
+### Worker Endpoints
 
 Similar to the above API you can use `GET /` or `GET /worker` as health check ping.  These are the only endpoints.  Check them out in `./worker/main.py`
 
