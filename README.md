@@ -3,7 +3,7 @@
 Fork this repository and use it as the base for a barebone Python [FastAPI](https://fastapi.tiangolo.com) application.  The architecture of this app is setup as follow:
 
 ```text
-[Nginx] -proxy--> [Py:API] -publish--> [Redis:List] <--consume- [Py:Worker] -insert--> [Postgres:Table]
+[Nginx] --> [Py:API] --pub--> [Redis:List] <--sub-- [Py:Worker] --save--> [Postgres:Table]
 ```
 
 ## Why does this exists?
@@ -13,11 +13,35 @@ Fork this repository and use it as the base for a barebone Python [FastAPI](http
 - This will allow the use of a load tester & [Kubernestes](https://kubernetes.io/docs/home/) horizontal auto scalers like [KEDA](https://keda.sh)
 - It can also be used as [FastAPI](https://fastapi.tiangolo.com) micro service code template to quickly to setup an API & accompanying background worker service that's backed by [Redis](https://redis.io/docs/latest/develop/clients/redis-py/) & [Postgres](https://github.com/MagicStack/asyncpg) in a producer-consumer pattern
 
+## API & Worker Design
+
+### API Endpoints
+
+You can see these configured endpoints by going to `./api/main.py`
+
+- `GET /` & `GET /color` - health check ping
+- `GET /color/match?name={color_or_hex}` - `name` value could be: `light blue`, `yellow 8` or `fff` (white)
+- `GET /color/names` - return all of the known [Open Color](https://yeun.github.io/open-color/) names
+
+Currently, only `GET /color/match` endpoint triggers a write to Redis List named: `color_match_results` you can change the name of this list in `.env`
+
+```env
+REDIS_COLOR_LIST_NAME=color_match_results
+```
+
+API does not connect to Postgres.
+
+### Worker Endponts
+
+Similar to the above API you can use `GET /` or `GET /worker` as health check ping.  These are the only endpoints.  Check them out in `./worker/main.py`
+
+Worker subscribe to the same Redis List named: `color_match_results` as API. It also writes received messages from this Redis list into Postgres, into a table name `color_matches` in the `dev` schema.  You can see table structure in `./db/000_schema.sql`
+
 ## Running the App for the First Time
 
 Assuming you have `Docker` installed properly with `make` and you're on Linux or a variant of Unix (like MacOS). To build & run the whole thing, simply execute the following from repository root path:
 
-```sh
+```bash
 # this will build all local containers & launch docker-compose.yml
 # nginx by default will listen on your machine's `localhost:8000`
 [project_root]$ make run
@@ -39,7 +63,7 @@ WORKER_CLUSTER_SIZE=2
 
 `API` and `Worker` container ports are not exposed to your local workstation at all, only `nginx`, `redis` & `postgres` are (for debugging). You can do health check using `curl` directly on `nginx` to check `nginx` health & `API` + `Worker` health as follow:
 
-```sh
+```bash
 # to check nginx
 $ curl -iXGET 'http://localhost:8000'
 
@@ -75,7 +99,7 @@ If you're launching a cluster using `make run-cluster`, doing repeated health ch
 
 I added these make commands to help with testing. **NOTE** that all of these tests are basically using `curl` against `localhost:${LOAD_BALANCER_PORT}`.  You can find this value in `.env` file.
 
-```sh
+```bash
 ## pinging & health check:
 
 # check load balancer health
@@ -144,7 +168,7 @@ To do this, you'll need Python 3.13+ installed & the latest VisualStudio code & 
 
 This is the simplest setup. To start, change directory to project root in your shell, then:
 
-```sh
+```bash
 # do the initial setup if you haven't done it already. 
 # It will create an virtual environment with all depdencies installed at ./.venv
 [project_root]$ make local-setup
