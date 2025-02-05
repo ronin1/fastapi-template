@@ -3,6 +3,7 @@ import base64
 import os
 import pickle
 from datetime import datetime
+import random
 from typing import Any, Dict
 import json
 import asyncpg
@@ -17,12 +18,17 @@ class ColorConsumer:
     _pg_conn: asyncpg.Connection | None = None
     logger = get_logger(__name__)
 
-    def __init__(self, delay_s: float = 3, empty_print_s: int = 60):
+    def __init__(self, empty_delay_s: float = 3, empty_print_s: int = 60):
         self._init_redis()
-        self._delay_s = delay_s
+        self._empty_delay_s = empty_delay_s
         self._empty_print_s = int(empty_print_s)  # how many seconds to wait between printing empty result reminder
         self._last_pull = datetime.now()
         self._last_mod = -1
+
+        self.min_delay = int(os.getenv("WORKER_DELAY_MIN", "0"))
+        self.max_delay = int(os.getenv("WORKER_DELAY_MAX", "0"))
+        self.can_delay = self.min_delay < self.max_delay and self.max_delay > 0
+        self.is_random_delay = self.can_delay and self.min_delay < self.max_delay
 
     @classmethod
     def _init_redis(cls):
@@ -68,9 +74,9 @@ class ColorConsumer:
         return data
 
     async def pull_event_loop(self) -> None:
-        if self._delay_s > 0:
-            self.logger.info("Delaying for %fs before starting", self._delay_s)
-            await asyncio.sleep(self._delay_s)
+        if self._empty_delay_s > 0:
+            self.logger.info("Delaying for %fs before starting", self._empty_delay_s)
+            await asyncio.sleep(self._empty_delay_s)
 
         if self._redis is None:
             self.logger.error("Redis connection is not initialized")
@@ -81,7 +87,7 @@ class ColorConsumer:
             try:
                 msg = self._redis.rpop(COLOR_LIST_NAME)
                 if msg is None:
-                    msg = self._redis.brpop([COLOR_LIST_NAME], timeout=int(self._delay_s))
+                    msg = self._redis.brpop([COLOR_LIST_NAME], timeout=int(self._empty_delay_s))
                 if not msg:
                     since_sec = int((datetime.now() - self._last_pull).total_seconds())
                     mod_count = since_sec % self._empty_print_s
@@ -97,6 +103,13 @@ class ColorConsumer:
                 self.logger.debug("Received color match event: %s", data)
 
                 await self._write_to_db(data)
+                if self.can_delay:
+                    delay_ms = self.min_delay
+                    if self.is_random_delay:
+                        delay_ms = random.randint(self.min_delay, self.max_delay)
+                    self.logger.debug("Delaying for %dms before next message", delay_ms)
+                    await asyncio.sleep(delay_ms / 1000)
+
             except Exception as e:  # pylint: disable=broad-except
                 self.logger.error("Failed to process message: %s", e)
                 await asyncio.sleep(1)

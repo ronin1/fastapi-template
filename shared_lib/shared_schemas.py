@@ -1,7 +1,8 @@
+import os
 from pydantic import BaseModel, Field
 
 
-COLOR_LIST_NAME: str = "ColorListResponse"
+COLOR_LIST_NAME: str = os.getenv("REDIS_COLOR_LIST_NAME", "color_match_results")
 
 
 class ColorMatched(BaseModel):
