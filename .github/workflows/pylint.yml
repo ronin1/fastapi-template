@@ -1,13 +1,17 @@
 name: Pylint
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10","3.12","3.13"]
+        python-version: ["3.10","3.13"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -17,10 +21,26 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
         pip install -r shared_lib/requirements.txt
         pip install -r api/requirements.txt
         pip install -r worker/requirements.txt
+        pip install -r ci_requirements.txt
     - name: Analysing the code with pylint
       run: |
         pylint --disable=C0114,C0115,C0116,R0903,R0801 $(git ls-files '*.py')
+    - name: Type check ./shared_lib with mypy
+      run: |
+        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+          --ignore-missing-imports --show-column-numbers --namespace-packages \
+          --explicit-package-bases ./shared_lib
+    - name: Type check ./api with mypy
+      run: |
+        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+          --ignore-missing-imports --show-column-numbers --namespace-packages \
+          --explicit-package-bases ./api
+    - name: Type check ./worker with mypy
+      run: |
+        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+          --ignore-missing-imports --show-column-numbers --namespace-packages \
+          --explicit-package-bases ./worker
+        
