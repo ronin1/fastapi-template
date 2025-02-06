@@ -3,8 +3,14 @@ name: Container Build & Push
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/pylint.yml'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/pylint.yml'
 
 jobs:
   docker:

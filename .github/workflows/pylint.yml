@@ -1,6 +1,10 @@
 name: Pylint
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/container_build.yml'
 
 jobs:
   build:
