@@ -15,6 +15,8 @@ Fork this repository and use it as the base for a barebone Python [FastAPI](http
 
 ## API & Worker Design
 
+Both uses FastAPI library. Each has their own `requirements.txt` and they both use `shared_lib` module (which also has its own requirement file).  You can find the container instruction under `./Docker.api` & `./Docker.worker` files.
+
 ### API Endpoints
 
 You can see these configured endpoints by going to `./api/main.py`
