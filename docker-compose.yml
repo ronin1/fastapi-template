@@ -2,9 +2,6 @@ networks:
   app-network:
     driver: bridge
 
-# volumes:
-#   pg_data_17:
-
 services:
 
   api:
@@ -33,7 +30,7 @@ services:
       sql_db:
         condition: service_started
     deploy:
-      replicas: 1
+      replicas: ${API_CLUSTER_SIZE:-1}
       restart_policy:
         condition: on-failure
     networks:
@@ -67,17 +64,17 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-dev}
     depends_on:
       mem_db:
-        condition: service_started
-      sql_db:
         condition: service_healthy
+      # sql_db:
+      #   condition: service_started
     deploy:
-      replicas: 1
+      replicas: ${WORKER_CLUSTER_SIZE:-1}
       restart_policy:
         condition: on-failure
     networks:
       - app-network
 
-  load_balancer:
+  nginx:
     image: nginx:1-alpine
     mem_limit: 256M
     cpu_shares: 512
@@ -94,7 +91,7 @@ services:
     networks:
       - app-network
     deploy:
-      replicas: 1
+      replicas: ${LOAD_BALANCER_CLUSTER_SIZE:-1}
       restart_policy:
         condition: on-failure
 

@@ -1,0 +1,49 @@
+# NOTE: these are meant to be used as debug overrides for our main docker-compose.yml file
+
+volumes:
+  pg_data_17:
+  redis_data_7:
+
+services:
+
+  api:
+    mem_limit: 1G
+    cpu_shares: 786
+    command: ["/app/debug_launcher.sh", "/app/api/main.py"]
+    expose:
+      - 4000
+    ports:
+      - ${API_DEBUG_PORT:-4000}:4000
+    environment:
+      - DEBUG_PORT=4000
+      - DEBUG_PAUSE=${API_DEBUG_PAUSE:-0}
+    volumes:  # NOTE: pay attention to the mount paths, if you add new shared library folders, you need to add them here
+      - ./debug_launcher.sh:/app/debug_launcher.sh:ro
+      - ./debug_requirements.txt:/app/debug_requirements.txt:ro
+      - ./shared_lib:/app/shared_lib
+      - ./api:/app/api  # mounting only api folder & shared lib. Nothing else
+
+  worker:
+    mem_limit: 1G
+    cpu_shares: 786
+    command: ["/app/debug_launcher.sh", "/app/worker/main.py"]
+    expose:
+      - 4000
+    ports:
+      - ${WORKER_DEBUG_PORT:-4001}:4000
+    environment:
+      - DEBUG_PORT=4000
+      - DEBUG_PAUSE=${WORKER_DEBUG_PAUSE:-0}
+    volumes:  # NOTE: pay attention to the mount paths, if you add new shared library folders, you need to add them here
+      - ./debug_launcher.sh:/app/debug_launcher.sh:ro
+      - ./debug_requirements.txt:/app/debug_requirements.txt:ro
+      - ./shared_lib:/app/shared_lib
+      - ./worker:/app/worker # mounting only worker folder & shared lib. Nothing else
+
+  mem_db:
+    volumes:
+      - redis_data_7:/data
+
+  sql_db:
+    volumes:
+      - pg_data_17:/var/lib/postgresql/data

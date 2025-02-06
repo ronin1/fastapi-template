@@ -14,6 +14,7 @@
 **/*.Dockerfile
 **/Dockerfile.*
 **/docker-*.yml
+**/docker-*.*.yml
 **/*.md
 
 #!.env

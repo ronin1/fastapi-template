@@ -15,6 +15,8 @@ Fork this repository and use it as the base for a barebone Python [FastAPI](http
 
 ## API & Worker Design
 
+Both uses FastAPI library. Each has their own `requirements.txt` and they both use `shared_lib` module (which also has its own requirement file).  You can find the container instruction under `./Dockerfile.api` & `./Dockerfile.worker` files.  Postgres SQL schema files can be foun under `./db` directory. Nginx configuration is stored in `./nginx.conf`
+
 ### API Endpoints
 
 You can see these configured endpoints by going to `./api/main.py`
@@ -31,23 +33,33 @@ REDIS_COLOR_LIST_NAME=color_match_results
 
 API does not connect to Postgres.
 
-### Worker Endponts
+### Worker Endpoints
 
 Similar to the above API you can use `GET /` or `GET /worker` as health check ping.  These are the only endpoints.  Check them out in `./worker/main.py`
 
 Worker subscribe to the same Redis List named: `color_match_results` as API. It also writes received messages from this Redis list into Postgres, into a table name `color_matches` in the `dev` schema.  You can see table structure in `./db/000_schema.sql`
 
+#### Multi-threaded worker
+
+By default, each worker will fork 2 threads for `color_consumer.py`. The value is configurable in `.env`. 
+
+```env
+WORKER_THREADS=2
+```
+
+The main thread is used to serve a simple API endpoint for container health check.  This can be expanded and used as an "internal" API also.
+
 ## Running the App for the First Time
 
-Assuming you have `Docker` installed properly with `make` and you're on Linux or a variant of Unix (like MacOS). To build & run the whole thing, simply execute the following from repository root path:
+Assuming you have `Docker` v27+ installed properly with `make` and you're on Linux or a variant of Unix (like MacOS). To build & run the whole thing, simply execute the following from repository root path:
 
 ```bash
 # this will build all local containers & launch docker-compose.yml
 # nginx by default will listen on your machine's `localhost:8000`
-[project_root]$ make run
+$ make run
 
 # press Ctrl+C to stop. To truly shut down all containers, run:
-[project_root]$ make stop
+$ make stop
 
 # all data will be removed from Redis & Postgres container with the above command
 ```
@@ -87,7 +99,7 @@ Content-Type: application/json
 Content-Length: 117
 Connection: keep-alive
 
-{"status":"OK","name":"color api","host":"ac95b94d48f3","boot":"2025-02-05T04:25:47.473431","alive":"0:31:19.263662"}
+{"status":"OK","name":"color api 🎨","host":"ac95b94d48f3","boot":"2025-02-05T04:25:47.473431","alive":"0:31:19.263662"}
 
 # to check Worker
 $ curl -iXGET 'http://localhost:8000/worker'
@@ -103,26 +115,26 @@ I added these make commands to help with testing. **NOTE** that all of these tes
 ## pinging & health check:
 
 # check load balancer health
-[project_root]$ make check-nginx
+$ make check-nginx
 # check API health
-[project_root]$ make check-api
+$ make check-api
 # check worker health
-[project_root]$ make check-worker
+$ make check-worker
 
 ## testing application by sending query to the color API
 
 # color api match: light blue
-[project_root]$ make test-color-match
+$ make test-color-match
 # color api match: green
-[project_root]$ make test-color-match2
+$ make test-color-match2
 # reverse api hex match: ffffff
-[project_root]$ make test-hex-match
+$ make test-hex-match
 # short api hex match: fff
-[project_root]$ make test-hex-match2
+$ make test-hex-match2
 # get all Open Color base names
-[project_root]$ make test-color-names
+$ make test-color-names
 # send in a bad input to get a 400 by trying to match the color name: "er"
-[project_root]$ make test-color-error
+$ make test-color-error
 ```
 
 ### Load Testing
@@ -151,47 +163,101 @@ VisualStudio Code configuration are checked in for easy debugging without any se
 
 ### Local Workstation Debug via Python Virtual Environment
 
-To do this, you'll need Python 3.13+ installed & the latest VisualStudio code & these recommended (but optional) extensions:
+To do this, you'll need the following installed:
 
-- Python - by Microsoft
-- Python Debugger - also by Microsoft
-- autopep8 - also by Microsoft
-- Back Formatter - you guest it, Microsoft
-- Flake8 - Microsoft
-- Gather - Microsoft
-- isort - Microsoft
-- Mypy Type Checker - Microsoft
-- CMake Tools - Microsoft
-- Makefile Tools - Microsoft
-- Docker - Microsoft
-- YAML - Mot Microsoft: Red Hat 😅
+- Python v3.10+ - Containers are setup to use Python version v3.13
+- Python Pip (package manager) module
+- Python Venv (virtual environment) module
+- VisualStudio Code &
+- these recommended (but optional) extensions:
+  - `Python` - by Microsoft
+  - `Python Debugger` - also by Microsoft
+  - `autopep8` - also by Microsoft
+  - `Back Formatter` - you guest it, Microsoft
+  - `Flake8` - Microsoft
+  - `Gather` - Microsoft
+  - `isort` - Microsoft
+  - `Mypy Type Checker` - Microsoft
+  - `CMake Tools` - Microsoft
+  - `Makefile Tools` - Microsoft
+  - `Docker` - Microsoft
+  - `YAML` - Not Microsoft: Red Hat 😅
 
 This is the simplest setup. To start, change directory to project root in your shell, then:
 
 ```bash
-# do the initial setup if you haven't done it already. 
-# It will create an virtual environment with all depdencies installed at ./.venv
-[project_root]$ make local-setup
+# first, launch the database containers alone (Redis & Postgres) using:
+# they will be running & available on port 16379 & 15432 respectively on your local host
+# there's no password for Redis, Postgres credential can be found in docker-compose.yml file in the `sql_db` environment section
+$ make run-db 
+
+# after that, do the initial setup if you haven't done it already. 
+# It will create an virtual environment with all depdencies installed at ./.venv.
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+# now install all packages
+$ pip3 install -r shared_lib/requirements.txt
+$ pip3 install -r api/requirements.txt
+$ pip3 install -r worker/requirements.txt
+# you only need to do these above steps once
 
 # if you're not running the above, active your virtual environment
-[project_root]$ source .venv/bin/active
+$ source .venv/bin/active
 
 # assuming you have vscode console command setup as "code", launch it in the activated shell
-[project_root]$ code .
-
-# to launch just Redis & Postgres containers alone:
-[project_root]$ make run-db
+$ code .
 ```
 
-Once launched, there should be already 2 debuging profiles setup (under `.vscode/launch.json`) as:
+Within Visual Studio Code, locate your debugger tab (on the left column, looks like a Play button).
+Now select one of the following `DEBUG AND RUN` profile & launch it. These profiles are configured in `.vscode/launch.json` as:
 
-- `Debug: API` - this will launch the API and attach it to port `3000`
-- `Debug: Worker` - this will launch worker and attach it to port `3001`
+- `Debug: Local API` - this will launch the API and serve the app from port `3000`
+- `Debug: Local Worker` - this will launch worker and serve the app from port `3001`
 
-**Note** that the above 2 debug profiles will need Redis & Postgres running or they will fail (API only needs Redis).  These profiles are designed to work with the exposed database ports.
+**Note** that
+
+- the above 2 debug profiles will need Redis & Postgres running or they will fail (API only needs Redis).  These profiles are designed to work with the exposed database ports mentioned above
+- Hot re-loading (live code editting) while debugging is only supported with local debugger. Container based debugging is not yet setup for live hot reloading.
 
 ### Container attach Debug via Python Remote Debugger
 
-Since the code is running on Alpine Linux (not a typical distro for deskt-top use). Sometimes it's still best to debug & test the code within the container and observe its behavior within the actual OS being used in production.
+Since the code is running on Alpine Linux (not a typical distro for desktop use). Sometimes it's still best to debug & test the code within the container and observe its behavior within the actual OS being used in actual deployment.
 
-This work is currently missing & will be added in future commits!
+Debugging assumes you have Visual Studio Code setup with all above plugins mentioned.  From your console, launch containers in debug mode by executing:
+
+```bash
+# this will launch 1 instance of API & Worker (configured with 1 thread only) for easy debugging
+# this run combines docker-compose.yml with docker-compose.debug.yml (see Makefile)
+# it will expose an additional debuging port of 4000 (API) & 4001 (worker) for debugpy to attach to
+$ make debug
+
+# activate virtual environment (created above) if you haven't already done so
+$ source .venv/bin/activate
+
+# you can now launch vs-code from the same folder root
+$ code .
+```
+
+Within Visual Studio Code, locate your debugger tab (on the left column, looks like a Play button).
+Now select one of the following `DEBUG AND RUN` profile & launch it:
+
+- `Attach: Docker API` - will connect vs code to the running API container
+- `Attach: Docker Worker` - will conenct vs code to the running worker container
+
+You can now attach a debugger break point on the health check endpoint located in `api/main.py` (or `worker/main.py`; search for `@app.get("/")`).  Make a simple API request via curl: `curl 'localhost:8000/color'`.  Your vs code deugger should pause on your break point. Both containers can be attached to at once!
+
+Local `./api`, `./worker`, & `./shared_lib` is mounted in the launched docker containers. Changes made locally via VsCode or directly within the container will modify the same files (locally).  If you need to install `ipdb`, you can do so by uncommenting the line in `./debug_requirements.txt`
+
+**NOTE:**
+
+- `make debug` by default does not pause the container and wait for a debugger to be attached.  If you need this behavior, simply edit `.env` file and toggle the following env vars for the appropriate container.
+- Runing in container debug mode will also persists Redis & Postgres data. In all other mode all database data are not kept on container exit with `make stop`
+
+
+```env
+# set value to 1 if you want these container to wait for an attach debugger before starting via: make debug
+API_DEBUG_PAUSE=0
+WORKER_DEBUG_PAUSE=0
+```
+
+Happy Debugging 👾 🎉

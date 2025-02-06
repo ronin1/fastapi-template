@@ -53,20 +53,29 @@ class ColorConsumer:
     @classmethod
     async def cleanup(cls) -> None:
         if cls._pg_conn is not None:
-            await cls._pg_conn.close()
-            cls._pg_conn = None
+            try:
+                await cls._pg_conn.close()
+                cls._pg_conn = None
+                cls.logger.debug("Closed PostgreSQL connection")
+            except Exception as e:  # pylint: disable=broad-except
+                cls.logger.warning("Failed to close PostgreSQL connection: %s", e)
+        if cls._redis is not None:
+            try:
+                cls._redis.close()
+                cls._redis = None
+                cls.logger.debug("Closed Redis connection")
+            except Exception as e:  # pylint: disable=broad-except
+                cls.logger.warning("Failed to close Redis connection: %s", e)
 
     def _unwrap(self, msg: Any) -> Dict[str, Any]:
         if msg is None:
             self.logger.error("Received message is None")
             return {}
         s: str = ""
-        if isinstance(msg, str):
-            s = msg
-        if isinstance(msg, tuple) and len(msg) == 2 and isinstance(msg[1], str):
-            s = str(msg[1])
+        if isinstance(msg, list) and len(msg) >= 1 and isinstance(msg[0], str):
+            s = msg[0]
         if not s:
-            self.logger.error("Received message is not a string: %s", msg)
+            self.logger.error("Received message payload is not a string: %s", msg)
             return {}
 
         buf = base64.b64decode(s, validate=True)
@@ -85,10 +94,7 @@ class ColorConsumer:
         self.logger.info("Starting color consumer loop")
         while True:
             try:
-                msg = self._redis.rpop(COLOR_LIST_NAME)
-                if msg is None:
-                    await asyncio.sleep(self._empty_delay_s)
-                    # msg = self._redis.brpop([COLOR_LIST_NAME], timeout=int(self._empty_delay_s))
+                msg = self._redis.rpop(COLOR_LIST_NAME, 1)
                 if not msg:
                     since_sec = int((datetime.now() - self._last_pull).total_seconds())
                     mod_count = since_sec % self._empty_print_s
@@ -96,6 +102,8 @@ class ColorConsumer:
                     if self._last_mod != block:
                         self._last_mod = block
                         self.logger.debug("No messages in the last %d seconds. Since: %s", since_sec, self._last_pull)
+
+                    await asyncio.sleep(self._empty_delay_s)  # wait for a few seconds before the next fetch
                     continue  # repeat loop, still empty
                 else:
                     self._last_pull = datetime.now()

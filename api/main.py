@@ -12,8 +12,8 @@ from services.api_schemas import MatchColorRequest, ColorMatched, ColorListRespo
 from logger_factory import get_logger, min_log_level, log_config
 
 
-boot_time = datetime.now()
-host_name = socket.gethostname()
+_boot_time = datetime.now()
+_host_name = socket.gethostname()
 
 app = FastAPI(
     title="Color API for DevOps Testing",
@@ -34,16 +34,16 @@ async def health_check() -> Dict[str, Any]:
     current_time = datetime.now()
     resp = {
         "status": "OK",
-        "name": "color api",
-        "host": host_name,
-        "boot": boot_time,
-        "alive": str(current_time - boot_time)
+        "name": "color api 🎨",
+        "host": _host_name,
+        "boot": _boot_time,
+        "alive": str(current_time - _boot_time)
     }
-    log().debug("Health check: OK for %s", host_name)
+    log().debug("Health check: OK for %s", _host_name)
     return resp
 
 
-def resolve_color_matcher(req: Request) -> ColorMatcherProtocol:
+def _resolve_color_matcher(req: Request) -> ColorMatcherProtocol:
     return ColorMatcherWithDelay(ColorMatcherWithPublisher(ColorMatcher(), req))  # decorator pattern
 
 
@@ -54,7 +54,7 @@ async def match_color(
     if not query.name.strip():
         raise HTTPException(status_code=400, detail="The 'name' field cannot be empty.")
 
-    matcher: ColorMatcherProtocol = resolve_color_matcher(request)
+    matcher: ColorMatcherProtocol = _resolve_color_matcher(request)
     results: List[ColorMatched] = matcher.match(query.name)
     if results is None or len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -63,23 +63,31 @@ async def match_color(
 
 @app.get("/color/names", response_model=ColorNamesResponse)
 async def list_names(request: Request) -> ColorNamesResponse:
-    matcher: ColorMatcherProtocol = resolve_color_matcher(request)
+    matcher: ColorMatcherProtocol = _resolve_color_matcher(request)
     names = matcher.names()
     return ColorNamesResponse(count=len(names), names=names)
 
 
 def main() -> None:
-    host = os.getenv("HOST", os.getenv("API_HOST", "0.0.0.0"))
-    port = os.getenv("PORT", os.getenv("API_PORT", "8000"))
-    kargs = { 
-        "host": host,
-        "port": int(port),
-        "log_level": min_log_level()
-    }
-    fmt = log_config()
-    if fmt is not None:
-        kargs["log_config"] = fmt
-    uvicorn.run(app, **kargs)  # type: ignore
+    try:
+        host = os.getenv("HOST", os.getenv("API_HOST", "0.0.0.0"))
+        port = os.getenv("PORT", os.getenv("API_PORT", "8000"))
+        kargs = { 
+            "host": host,
+            "port": int(port),
+            "log_level": min_log_level()
+        }
+        fmt = log_config()
+        if fmt is not None:
+            kargs["log_config"] = fmt
+
+        # this is a blocking call and will only continue if the server is shutdown
+        uvicorn.run(app, **kargs)  # type: ignore
+    except Exception as e:  # pylint: disable=broad-except
+        log().error("API server failed to start: %s", e)
+        raise e
+    finally:
+        log().info("API server exiting. Good bye 🖖")
 
 
 if __name__ == "__main__":

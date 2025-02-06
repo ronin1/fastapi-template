@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug: API",
+            "name": "Debug: Local API", // launch the API on your workstation with an attached local debugger
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}${pathSeparator}api${pathSeparator}main.py",
@@ -19,10 +19,26 @@
             },
             "envFile": "${workspaceFolder}${pathSeparator}.env",
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "autoReload": {
+                "enable": true,
+                "exclude": [
+                    "**/.git/**",
+                    "**/__pycache__/**",
+                    "**/node_modules/**",
+                    "**/.metadata/**",
+                    "**/site-packages/**",
+                    "**/.venv/**"
+                ],
+                "include": [
+                    "**/*.py",
+                    "**/*.pyw"
+                ]
+            }
         },
         {
-            "name": "Debug: Worker",
+            "name": "Debug: Local Worker",  // launch the worker on your workstation with an attached local debugger
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}${pathSeparator}worker${pathSeparator}main.py",
@@ -33,10 +49,59 @@
                 "WORKER_PORT": "3001",
                 "WORKER_DELAY_MIN": "500",
                 "WORKER_DELAY_MAX": "1_000",
+                "WORKER_THREADS": "1",
             },
             "envFile": "${workspaceFolder}${pathSeparator}.env",
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
-        }
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "autoReload": {
+                "enable": true,
+                "exclude": [
+                    "**/.git/**",
+                    "**/__pycache__/**",
+                    "**/node_modules/**",
+                    "**/.metadata/**",
+                    "**/site-packages/**",
+                    "**/.venv/**"
+                ],
+                "include": [
+                    "**/*.py",
+                    "**/*.pyw"
+                ]
+            }
+        },
+        {
+            "name": "Attach: Docker API",  // attach to an existing API container running via: make debug
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "127.0.0.1",
+                "port": 4000
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/",
+                    "remoteRoot": "."
+                }
+            ],
+            "justMyCode": true,
+        },
+        {
+            "name": "Attach: Docker Worker",  // attach to an existing worker container running via: make debug
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "127.0.0.1",
+                "port": 4001
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/",
+                    "remoteRoot": "."
+                }
+            ],
+            "justMyCode": true
+        },
     ]
 }
