@@ -1,2 +1,7 @@
 pylint>=3.3.0
 mypy>=1.15.0
+# type packages for mypy type checking
+types-PyYAML
+types-pyOpenSSL
+types-requests
+types-ujson
