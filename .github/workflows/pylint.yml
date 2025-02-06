@@ -28,6 +28,19 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint --disable=C0114,C0115,C0116,R0903,R0801 $(git ls-files '*.py')
-    - name: Type checking with mypy
+    - name: Type check ./shared_lib with mypy
       run: |
-        mypy --ignore-missing-imports $(git ls-files '*.py')
+        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+          --ignore-missing-imports --show-column-numbers --namespace-packages \
+          --explicit-package-bases ./shared_lib
+    - name: Type check ./api with mypy
+      run: |
+        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+          --ignore-missing-imports --show-column-numbers --namespace-packages \
+          --explicit-package-bases ./api
+    - name: Type check ./worker with mypy
+      run: |
+        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+          --ignore-missing-imports --show-column-numbers --namespace-packages \
+          --explicit-package-bases ./worker
+        
