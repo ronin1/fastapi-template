@@ -163,9 +163,9 @@ VisualStudio Code configuration are checked in for easy debugging without any se
 
 To do this, you'll need the following installed:
 
-- Python v3.10+
-- Python Pip module
-- Python Venv module
+- Python v3.10+ - Containers are setup to use Python version v3.13
+- Python Pip (package manager) module
+- Python Venv (virtual environment) module
 - VisualStudio Code &
 - these recommended (but optional) extensions:
   - `Python` - by Microsoft
