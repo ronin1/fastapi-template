@@ -1,7 +1,7 @@
 # Python FastAPI Template with Nginx, Redis, & Postgres
 
 ![Container Build](https://github.com/ronin1/fastapi-template/actions/workflows/container_build.yml/badge.svg)
-![Container Build](https://github.com/ronin1/fastapi-template/actions/workflows/pylint.yml/badge.svg)
+![PyLint](https://github.com/ronin1/fastapi-template/actions/workflows/pylint.yml/badge.svg)
 
 Fork this repository and use it as the base for a barebone Python [FastAPI](https://fastapi.tiangolo.com) application.  The architecture of this app is setup as follow:
 

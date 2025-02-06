@@ -1,4 +1,4 @@
-name: Containers Build & Push
+name: Containers Build
 run-name: "${{ github.workflow }} @${{ github.head_ref || github.ref_name }} - ${{ github.event.head_commit.message }}"
 
 on:
