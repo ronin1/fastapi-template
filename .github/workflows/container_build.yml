@@ -12,6 +12,10 @@ on:
       - 'README.md'
       - '.github/workflows/pylint.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   docker_build:
     runs-on: ubuntu-latest
