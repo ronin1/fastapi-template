@@ -47,15 +47,13 @@ async def health_check() -> Dict[str, Any]:
 def _api_setup() -> uvicorn.Server:
     host = os.getenv("HOST", os.getenv("WORKER_HOST", "0.0.0.0"))
     port = os.getenv("PORT", os.getenv("WORKER_PORT", "8000"))
-    kargs = {
-        "host": host,
-        "port": int(port),
-        "log_level": min_log_level()
-    }
     fmt = log_config()
+    cfg: uvicorn.Config | None = None
     if fmt is not None:
-        kargs["log_config"] = fmt
-    cfg = uvicorn.Config(app, **kargs)
+        cfg = uvicorn.Config(
+            app, host=host, port=int(port), log_level=min_log_level(), log_config=fmt)
+    else:
+        cfg = uvicorn.Config(app, host=host, port=int(port), log_level=min_log_level())
     svr = uvicorn.Server(cfg)
     return svr
 
