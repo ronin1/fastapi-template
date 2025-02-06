@@ -15,6 +15,8 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
     steps:
       - uses: actions/checkout@v4
       - name: Login to GHCR
@@ -31,7 +33,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.merged == true }}
-          tags: ${{ github.repository }}/color_api:${{ github.ref_name }}
+          tags: ${{ github.repository }}/color_api:${{ env.BRANCH_NAME }}
           file: Dockerfile.api
           context: .
           platforms: linux/amd64,linux/arm64
@@ -39,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.merged == true }}
-          tags: ${{ github.repository }}/color_worker:${{ github.ref_name }}
+          tags: ${{ github.repository }}/color_worker:${{ env.BRANCH_NAME }}
           file: Dockerfile.worker
           context: .
           platforms: linux/amd64,linux/arm64
