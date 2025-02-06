@@ -8,17 +8,20 @@ from fastapi import FastAPI, HTTPException, Query, status, Response, Request
 from services.color_matcher_with_publisher import ColorMatcherWithPublisher
 from services.color_matcher import ColorMatcher, ColorMatcherProtocol
 from services.color_matcher_with_delay import ColorMatcherWithDelay
-from services.api_schemas import MatchColorRequest, ColorMatched, ColorListResponse, ColorNamesResponse
+from services.api_schemas import (
+    MatchColorRequest, ColorMatched, ColorListResponse, ColorNamesResponse
+)
 from logger_factory import get_logger, min_log_level, log_config
 
 
 _boot_time = datetime.now()
-_host_name = socket.gethostname()
+_host_name = socket.gethostname()  # pylint: disable=R0801
+
 
 app = FastAPI(
-    title="Color API for DevOps Testing",
+    title="Color API App",
     description=(
-        "Use this container to test OpenTofu or Pulumi deployment templates. "
+        "API app that takes http requests and publishes to a Redis list."
     ),
     version="1.0.0"
 )
@@ -44,7 +47,9 @@ async def health_check() -> Dict[str, Any]:
 
 
 def _resolve_color_matcher(req: Request) -> ColorMatcherProtocol:
-    return ColorMatcherWithDelay(ColorMatcherWithPublisher(ColorMatcher(), req))  # decorator pattern
+    return ColorMatcherWithDelay(
+        ColorMatcherWithPublisher(ColorMatcher(), req)
+    )  # decorator pattern
 
 
 @app.get("/color/match", response_model=ColorListResponse)
@@ -72,7 +77,7 @@ def main() -> None:
     try:
         host = os.getenv("HOST", os.getenv("API_HOST", "0.0.0.0"))
         port = os.getenv("PORT", os.getenv("API_PORT", "8000"))
-        kargs = { 
+        kargs = {
             "host": host,
             "port": int(port),
             "log_level": min_log_level()

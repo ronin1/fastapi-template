@@ -67,7 +67,7 @@ def min_log_level() -> int:
     return logging.NOTSET
 
 
-class CustomFilter(logging.Filter):
+class CustomFilter(logging.Filter):  # pylint: disable=too-few-public-methods
     def filter(self, record):
         record.msg = f"@{host_name} - {record.msg}"
         return True
