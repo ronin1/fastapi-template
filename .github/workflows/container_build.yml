@@ -36,7 +36,7 @@ jobs:
           export BRANCH_SLUG=`echo ${BRANCH_NAME} | sed 's/[^a-zA-Z0-9_]/-/g' | sed -e 's/\(.*\)/\L\1/'`
           echo "${BRANCH_SLUG}" | grep -q 'main' && \
             (export BRANCH_SLUG='latest'; echo 'change branch slug to latest') || \
-            else echo "keeping slug: ${BRANCH_SLUG}"
+            echo "keeping slug: ${BRANCH_SLUG}"
           echo "BRANCH_SLUG=${BRANCH_SLUG}" >> $GITHUB_ENV    
       - name: Build and push API image
         uses: docker/build-push-action@v6
