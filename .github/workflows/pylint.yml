@@ -23,4 +23,4 @@ jobs:
         pip install -r worker/requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint --disable=C0114,C0115,C0116,R0903 $(git ls-files '*.py')

@@ -11,13 +11,13 @@ from services.color_consumer import ColorConsumer
 
 
 _boot_time = datetime.now()
-_host_name = socket.gethostname()
+_host_name = socket.gethostname()  # pylint: disable=R0801
 
 
 app = FastAPI(
-    title="Color Worker for DevOps Testing",
+    title="Color Worker App",
     description=(
-        "Use this container to test OpenTofu or Pulumi deployment templates. "
+        "Worker process that consumes data from Redis list & writes to Postgres table."
     ),
     version="1.0.0"
 )

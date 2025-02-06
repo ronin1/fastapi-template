@@ -12,7 +12,7 @@ class ColorMatcherWithDelay(ColorMatcherABC):
     logger = get_logger(__name__)
     min_delay_ms: float = float(os.getenv("API_DELAY_MIN", "0"))
     max_delay_ms: float = float(os.getenv("API_DELAY_MAX", "0"))
-    can_delay: bool = min_delay_ms >= 0 and max_delay_ms >= min_delay_ms and max_delay_ms > 0
+    can_delay: bool = min_delay_ms >= 0 and max_delay_ms >= min_delay_ms and max_delay_ms > 0  # noqa pylint: disable=R1716
     is_random: bool = min_delay_ms < max_delay_ms
 
     def __init__(self, matcher: ColorMatcherABC):

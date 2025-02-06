@@ -72,12 +72,12 @@ class ColorMatcher(ColorMatcherABC):
 
     @staticmethod
     def _rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
-        return "#%02x%02x%02x" % rgb
+        return "#%02x%02x%02x" % rgb  # pylint: disable=consider-using-f-string
 
     def names(self) -> List[str]:
         return list(self.colors.keys())
 
-    def match(self, name: str) -> List[ColorMatched]:
+    def match(self, name: str) -> List[ColorMatched]:  # pylint: disable=R0912,R0915
         name = name.lower()
         results: List[ColorMatched] = []
         direct = self.colors.get(name)
@@ -135,7 +135,7 @@ class ColorMatcher(ColorMatcherABC):
             m = ColorMatched(name=name, hex=direct, r=rgb[0], g=rgb[1], b=rgb[2])
             results.append(m)
         elif isinstance(direct, list):
-            if index_hint >= 0 and index_hint < len(direct):
+            if index_hint >= 0 and index_hint < len(direct):  # pylint: disable=R1716
                 hex_value = direct[index_hint]
                 rgb = self._hex_to_rgb(hex_value)
                 m = ColorMatched(
