@@ -29,7 +29,8 @@ class ColorMatcher(ColorMatcherABC):
     colors: Dict[str, Any] = {}
     hexmap: Dict[str, str] = {}
     re_color_num = re.compile(r"^\s*([a-z]{3,})\s*([0-9])\s*$", flags=re.IGNORECASE)
-    re_color_mod = re.compile(r"^\s*(light|mild|medium|standard|regular|dark)\s+([a-z]{3,})\s*$", flags=re.IGNORECASE)
+    re_color_mod = re.compile(
+        r"^\s*(light|mild|medium|standard|regular|dark)\s+([a-z]{3,})\s*$", flags=re.IGNORECASE)
     re_hex_name = re.compile(r"^\s*[#]?([a-f0-9]{6})\s*$", flags=re.IGNORECASE)
     re_short_hex_name = re.compile(r"^\s*[#]?([a-f0-9]{3})\s*$", flags=re.IGNORECASE)
     logger = get_logger(__name__)
@@ -96,7 +97,8 @@ class ColorMatcher(ColorMatcherABC):
                 color_name = self.hexmap.get(hex_key)
                 if color_name is not None:
                     rgb = self._hex_to_rgb(hex_key)
-                    m = ColorMatched(name=color_name, hex=f"#{hex_key}", r=rgb[0], g=rgb[1], b=rgb[2])
+                    m = ColorMatched(
+                        name=color_name, hex=f"#{hex_key}", r=rgb[0], g=rgb[1], b=rgb[2])
                     results.append(m)
                     self.logger.debug("Matched %s to %d colors", name, len(results))
                     return results  # return early because we're constructing the result directly
@@ -136,14 +138,16 @@ class ColorMatcher(ColorMatcherABC):
             if index_hint >= 0 and index_hint < len(direct):
                 hex_value = direct[index_hint]
                 rgb = self._hex_to_rgb(hex_value)
-                m = ColorMatched(name=f"{name}{index_hint}", hex=hex_value, r=rgb[0], g=rgb[1], b=rgb[2])
+                m = ColorMatched(
+                    name=f"{name}{index_hint}", hex=hex_value, r=rgb[0], g=rgb[1], b=rgb[2])
                 results.append(m)
             else:  # add everything
                 index = 0
                 for hex_value in direct:
                     index += 1
                     rgb = self._hex_to_rgb(hex_value)
-                    m = ColorMatched(name=f"{name}{index}", hex=hex_value, r=rgb[0], g=rgb[1], b=rgb[2])
+                    m = ColorMatched(
+                        name=f"{name}{index}", hex=hex_value, r=rgb[0], g=rgb[1], b=rgb[2])
                     results.append(m)
 
         self.logger.debug("Matched %s to %d colors", name, len(results))

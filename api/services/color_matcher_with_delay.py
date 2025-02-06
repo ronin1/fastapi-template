@@ -23,7 +23,8 @@ class ColorMatcherWithDelay(ColorMatcherABC):
         if cls.can_delay:
             took_ms: float = (datetime.now() - start).microseconds / 1_000
             nap_ms: float = round(
-                random.uniform(cls.min_delay_ms, cls.max_delay_ms) if cls.is_random else cls.max_delay_ms, 2)
+                random.uniform(cls.min_delay_ms, cls.max_delay_ms) if cls.is_random
+                else cls.max_delay_ms, 2)
             cls.logger.debug("Execution took %sms Delaying for %fms", took_ms, nap_ms)
             time.sleep(nap_ms / 1_000)
 

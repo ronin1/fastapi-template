@@ -8,7 +8,9 @@ from fastapi import FastAPI, HTTPException, Query, status, Response, Request
 from services.color_matcher_with_publisher import ColorMatcherWithPublisher
 from services.color_matcher import ColorMatcher, ColorMatcherProtocol
 from services.color_matcher_with_delay import ColorMatcherWithDelay
-from services.api_schemas import MatchColorRequest, ColorMatched, ColorListResponse, ColorNamesResponse
+from services.api_schemas import (
+    MatchColorRequest, ColorMatched, ColorListResponse, ColorNamesResponse
+)
 from logger_factory import get_logger, min_log_level, log_config
 
 
@@ -44,7 +46,9 @@ async def health_check() -> Dict[str, Any]:
 
 
 def _resolve_color_matcher(req: Request) -> ColorMatcherProtocol:
-    return ColorMatcherWithDelay(ColorMatcherWithPublisher(ColorMatcher(), req))  # decorator pattern
+    return ColorMatcherWithDelay(
+        ColorMatcherWithPublisher(ColorMatcher(), req)
+    )  # decorator pattern
 
 
 @app.get("/color/match", response_model=ColorListResponse)

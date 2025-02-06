@@ -21,7 +21,7 @@ class ColorConsumer:
     def __init__(self, empty_delay_s: float = 2, empty_print_s: int = 60):
         self._init_redis()
         self._empty_delay_s = empty_delay_s
-        self._empty_print_s = int(empty_print_s)  # how many seconds to wait between printing empty result reminder
+        self._empty_print_s = int(empty_print_s)  # seconds to wait between empty list reminders
         self._last_pull = datetime.now()
         self._last_mod = -1
 
@@ -101,13 +101,14 @@ class ColorConsumer:
                     block = since_sec - mod_count
                     if self._last_mod != block:
                         self._last_mod = block
-                        self.logger.debug("No messages in the last %d seconds. Since: %s", since_sec, self._last_pull)
+                        self.logger.debug(
+                            "No messages in the last %d seconds. Since: %s", 
+                            since_sec, self._last_pull)
 
-                    await asyncio.sleep(self._empty_delay_s)  # wait for a few seconds before the next fetch
+                    await asyncio.sleep(self._empty_delay_s)  # wait before the next fetch
                     continue  # repeat loop, still empty
-                else:
-                    self._last_pull = datetime.now()
 
+                self._last_pull = datetime.now()
                 data: Dict[str, Any] = self._unwrap(msg)
                 self.logger.debug("Received color match event: %s", data)
 
