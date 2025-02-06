@@ -161,25 +161,35 @@ VisualStudio Code configuration are checked in for easy debugging without any se
 
 ### Local Workstation Debug via Python Virtual Environment
 
-To do this, you'll need Python 3.10+ installed & the latest VisualStudio code & these recommended (but optional) extensions:
+To do this, you'll need the following installed:
 
-- `Python` - by Microsoft
-- `Python Debugger` - also by Microsoft
-- `autopep8` - also by Microsoft
-- `Back Formatter` - you guest it, Microsoft
-- `Flake8` - Microsoft
-- `Gather` - Microsoft
-- `isort` - Microsoft
-- `Mypy Type Checker` - Microsoft
-- `CMake Tools` - Microsoft
-- `Makefile Tools` - Microsoft
-- `Docker` - Microsoft
-- `YAML` - Not Microsoft: Red Hat 😅
+- Python v3.10+
+- Python Pip module
+- Python Venv module
+- VisualStudio Code &
+- these recommended (but optional) extensions:
+  - `Python` - by Microsoft
+  - `Python Debugger` - also by Microsoft
+  - `autopep8` - also by Microsoft
+  - `Back Formatter` - you guest it, Microsoft
+  - `Flake8` - Microsoft
+  - `Gather` - Microsoft
+  - `isort` - Microsoft
+  - `Mypy Type Checker` - Microsoft
+  - `CMake Tools` - Microsoft
+  - `Makefile Tools` - Microsoft
+  - `Docker` - Microsoft
+  - `YAML` - Not Microsoft: Red Hat 😅
 
 This is the simplest setup. To start, change directory to project root in your shell, then:
 
 ```bash
-# do the initial setup if you haven't done it already. 
+# first, launch the database containers alone (Redis & Postgres) using:
+# they will be running & available on port 16379 & 15432 respectively on your local host
+# there's no password for Redis, Postgres credential can be found in docker-compose.yml file in the `sql_db` environment section
+$ make run-db 
+
+# after that, do the initial setup if you haven't done it already. 
 # It will create an virtual environment with all depdencies installed at ./.venv.
 $ python3 -m venv .venv
 $ source .venv/bin/activate
@@ -194,31 +204,29 @@ $ source .venv/bin/active
 
 # assuming you have vscode console command setup as "code", launch it in the activated shell
 $ code .
-
-# to launch just Redis & Postgres containers alone:
-$ make run-db
 ```
 
-Once launched, there should be already 2 debuging profiles setup (under `.vscode/launch.json`) as:
+Within Visual Studio Code, locate your debugger tab (on the left column, looks like a Play button).
+Now select one of the following `DEBUG AND RUN` profile & launch it. These profiles are configured in `.vscode/launch.json` as:
 
-- `Debug: Local API` - this will launch the API and attach it to port `3000`
-- `Debug: Local Worker` - this will launch worker and attach it to port `3001`
+- `Debug: Local API` - this will launch the API and serve the app from port `3000`
+- `Debug: Local Worker` - this will launch worker and serve the app from port `3001`
 
-**Note** that 
+**Note** that
 
-- the above 2 debug profiles will need Redis & Postgres running or they will fail (API only needs Redis).  These profiles are designed to work with the exposed database ports.
+- the above 2 debug profiles will need Redis & Postgres running or they will fail (API only needs Redis).  These profiles are designed to work with the exposed database ports mentioned above
 - Hot re-loading (live code editting) while debugging is only supported with local debugger. Container based debugging is not yet setup for live hot reloading.
 
 ### Container attach Debug via Python Remote Debugger
 
 Since the code is running on Alpine Linux (not a typical distro for desktop use). Sometimes it's still best to debug & test the code within the container and observe its behavior within the actual OS being used in actual deployment.
 
-Debugging assumes you have Visual Studio Code setup with all above plugins mentioned.
-
-From your console, launch containers in debug mode by executing:
+Debugging assumes you have Visual Studio Code setup with all above plugins mentioned.  From your console, launch containers in debug mode by executing:
 
 ```bash
 # this will launch 1 instance of API & Worker (configured with 1 thread only) for easy debugging
+# this run combines docker-compose.yml with docker-compose.debug.yml (see Makefile)
+# it will expose an additional debuging port of 4000 (API) & 4001 (worker) for debugpy to attach to
 $ make debug
 
 # activate virtual environment (created above) if you haven't already done so
