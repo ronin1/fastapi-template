@@ -77,6 +77,6 @@ async def main() -> None:
         log().info("Worker exiting. Good bye 👋")
 
 
-# SEE: https://stackoverflow.com/questions/76142431/how-to-run-another-application-within-the-same-running-event-loop  # noqa
+# SEE: https://stackoverflow.com/questions/76142431/how-to-run-another-application-within-the-same-running-event-loop  # noqa pylint: disable=line-too-long
 if __name__ == "__main__":
     asyncio.run(main())
