@@ -17,6 +17,10 @@ class ColorConsumer:
     _redis: Redis | None = None
     _pg_conn: asyncpg.Connection | None = None
     logger = get_logger(__name__)
+    min_delay = int(os.getenv("WORKER_DELAY_MIN", "0"))
+    max_delay = int(os.getenv("WORKER_DELAY_MAX", "0"))
+    can_delay = min_delay < max_delay and max_delay > 0
+    is_random_delay = can_delay and min_delay < max_delay
 
     def __init__(self, empty_delay_s: float = 2, empty_print_s: int = 60):
         self._init_redis()
@@ -24,11 +28,6 @@ class ColorConsumer:
         self._empty_print_s = int(empty_print_s)  # seconds to wait between empty list reminders
         self._last_pull = datetime.now()
         self._last_mod = -1
-
-        self.min_delay = int(os.getenv("WORKER_DELAY_MIN", "0"))
-        self.max_delay = int(os.getenv("WORKER_DELAY_MAX", "0"))
-        self.can_delay = self.min_delay < self.max_delay and self.max_delay > 0
-        self.is_random_delay = self.can_delay and self.min_delay < self.max_delay
 
     @classmethod
     def _init_redis(cls):
