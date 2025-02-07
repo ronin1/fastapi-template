@@ -12,6 +12,7 @@ on:
       - '/api/**'
       - '/worker/**'
       - '/shared_lib/**'
+      - '**/.dockerignore'
   pull_request:
     branches: [ main ]
     paths:
@@ -22,6 +23,7 @@ on:
       - '/api/**'
       - '/worker/**'
       - '/shared_lib/**'
+      - '**/.dockerignore'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
