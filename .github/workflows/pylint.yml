@@ -2,9 +2,11 @@ name: Pylint
 
 on:
   push:
-    paths-ignore:
-      - 'README.md'
-      - '.github/workflows/container_build.yml'
+    paths:
+      - '.github/workflows/pylint.yml'
+      - '**/*.py'
+      - '**/*equirements.txt'
+      - '*.ini'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
