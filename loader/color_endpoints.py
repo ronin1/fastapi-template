@@ -7,7 +7,7 @@ from locust import HttpUser, task
 # SEE: https://locust.io
 class ColorEndpoints(HttpUser):
     color_file = "api/services/open_colors.json"  # SEE: https://yeun.github.io/open-color/
-    color_data: Dict[str, str | List[str]] = dict()
+    color_data: Dict[str, str | List[str]] = {}
     color_names: List[str] = []
     _color_names_len: int = 0
     color_codes: List[str] = []

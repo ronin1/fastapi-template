@@ -6,5 +6,10 @@
 **/.pytest_cache
 
 !.env
-requirements.txt
-combined_requirements.txt
+./requirements.txt
+./combined_requirements.txt
+
+# !api/requirements.txt
+# !worker/requirements.txt
+# !shared_lib/requirements.txt
+# !loader/requirements.txt
