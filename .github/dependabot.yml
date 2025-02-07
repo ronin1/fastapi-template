@@ -5,12 +5,12 @@
 
 version: 2
 
-registries:
-  GHDR: # Github Docker Registry
-    type: docker-registry
-    url: ghcr.io
-    username: ${{ github.repository_owner }}
-    password: ${{ secrets.GITHUB_TOKEN }}
+# registries:
+#   GHDR: # Github Docker Registry
+#     type: docker-registry
+#     url: ghcr.io
+#     username: ${{ github.repository_owner }}
+#     password: ${{ secrets.GITHUB_TOKEN }}
 
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
