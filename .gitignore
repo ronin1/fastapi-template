@@ -6,3 +6,5 @@
 **/.pytest_cache
 
 !.env
+requirements.txt
+combined_requirements.txt

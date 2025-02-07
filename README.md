@@ -198,11 +198,10 @@ $ make run-db
 # It will create an virtual environment with all depdencies installed at ./.venv.
 $ python3 -m venv .venv
 $ source .venv/bin/activate
-# now install all packages
-$ pip3 install -r shared_lib/requirements.txt
-$ pip3 install -r api/requirements.txt
-$ pip3 install -r worker/requirements.txt
 # you only need to do these above steps once
+# Now install all packages. You can repeat this as new packages are added by you
+$ make pip-setup
+
 
 # if you're not running the above, active your virtual environment
 $ source .venv/bin/active

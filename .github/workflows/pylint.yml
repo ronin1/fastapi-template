@@ -7,6 +7,7 @@ on:
       - '**/*.py'
       - '**/*equirements.txt'
       - '*.ini'
+      - 'Makefile'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,16 +29,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
 
-        cat shared_lib/requirements.txt > combined_requirements.txt
-        echo '' >> combined_requirements.txt
-        cat api/requirements.txt >> combined_requirements.txt
-        echo '' >> combined_requirements.txt
-        cat worker/requirements.txt >> combined_requirements.txt
-        echo '' >> combined_requirements.txt
-        cat ci_requirements.txt >> combined_requirements.txt
-        echo '' >> combined_requirements.txt
-
-        sort -u combined_requirements.txt > requirements.txt
+        make requirements
         echo 'combined & unique requirement file:'
         cat requirements.txt
         echo ''

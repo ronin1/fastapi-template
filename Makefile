@@ -45,13 +45,30 @@ stop:
 
 # this setup ensure vscode can run the application in debug mode and all required linter passes
 .PHONY: local-setup
-local-setup:
+local-setup: requirements
 	@(python3 -m venv .venv && \
 		source .venv/bin/activate && \
-		pip3 install -r shared_lib/requirements.txt && \
-		pip3 install -r api/requirements.txt && \
-		pip3 install -r worker/requirements.txt && \
-		pip3 install -r debug_requirements.txt)
+		pip3 install -r requirements.txt && \
+		rm requirements.txt)
+
+# create a transient ./requirements.txt file for pip to install all dependencies
+requirements:
+	@(rm -f requirements.txt && \
+		cat shared_lib/requirements.txt > combined_requirements.txt && \
+		echo '' >> combined_requirements.txt && \
+        cat api/requirements.txt >> combined_requirements.txt && \
+		echo '' >> combined_requirements.txt && \
+        cat worker/requirements.txt >> combined_requirements.txt && \
+		echo '' >> combined_requirements.txt && \
+        cat ci_requirements.txt >> combined_requirements.txt && \
+		echo '' >> combined_requirements.txt && \
+        sort -u combined_requirements.txt > requirements.txt && \
+		rm combined_requirements.txt)
+
+# combine all requirements files into a single file and install them, then remove it after
+# make sure you activate the virtual environment before running this command
+pip-setup: requirements
+	@(pip3 install -r requirements.txt && rm requirements.txt)
 
 # this launch single instances of API & worker with a single thread
 .PHONY: debug
