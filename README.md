@@ -200,7 +200,7 @@ $ python3 -m venv .venv
 $ source .venv/bin/activate
 # you only need to do these above steps once
 # Now install all packages. You can repeat this as new packages are added by you
-$ make pip-setup
+$ make pip-install
 
 
 # if you're not running the above, active your virtual environment

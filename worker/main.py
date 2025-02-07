@@ -62,7 +62,9 @@ async def main() -> None:
     try:
         svr = _api_setup()  # configure API server
         consumer = ColorConsumer()  # setup consumer
-        worker_threads = int(os.getenv("WORKER_THREADS", "1")) or 1
+        worker_threads = int(os.getenv("WORKER_THREADS", "2")) or 0
+        if worker_threads < 1:
+            worker_threads = 1
         for _ in range(worker_threads):
             asyncio.create_task(consumer.pull_event_loop())  # fork consumer on a side loops
 
