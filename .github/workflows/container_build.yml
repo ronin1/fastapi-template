@@ -4,14 +4,24 @@ name: Containers Build
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'README.md'
-      - '.github/workflows/pylint.yml'
+    paths:
+      - '.github/workflows/container_build.yml'
+      - 'Dockerfile.*'
+      - '**/*.py'
+      - '**/*equirements.txt'
+      - '/api/**'
+      - '/worker/**'
+      - '/shared_lib/**'
   pull_request:
     branches: [ main ]
-    paths-ignore:
-      - 'README.md'
-      - '.github/workflows/pylint.yml'
+    paths:
+      - '.github/workflows/container_build.yml'
+      - 'Dockerfile.*'
+      - '**/*.py'
+      - '**/*equirements.txt'
+      - '/api/**'
+      - '/worker/**'
+      - '/shared_lib/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
