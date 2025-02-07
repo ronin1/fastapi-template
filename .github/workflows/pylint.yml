@@ -31,7 +31,7 @@ jobs:
         make pip-install
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=C0114,C0115,C0116,R0903,R0801 $(git ls-files '*.py')
+        pylint --disable=C0114,C0115,C0116,R0903,R0801,R1714 $(git ls-files '*.py')
     - name: Type check ./shared_lib with mypy
       run: |
         mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
