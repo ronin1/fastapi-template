@@ -1,13 +1,10 @@
 import asyncio
-import base64
 import os
-import pickle
 from datetime import datetime
 import random
 from typing import Any, Dict
 import json
 import asyncpg
-from fastapi.encoders import jsonable_encoder
 from logger_factory import get_logger
 from redis import StrictRedis as Redis
 from shared_schemas import COLOR_LIST_NAME
@@ -72,14 +69,13 @@ class ColorConsumer:
             self.logger.error("Received message is None")
             return {}
         s: str = ""
-        if isinstance(msg, list) and len(msg) >= 1 and isinstance(msg[0], str):
+        if isinstance(msg, list) and len(msg) >= 1 and msg[0]:
             s = msg[0]
         if not s:
             self.logger.error("Received message payload is not a string: %s", msg)
             return {}
 
-        buf = base64.b64decode(s, validate=True)
-        data: Dict[str, Any] = pickle.loads(buf)
+        data: Dict[str, Any] = json.loads(s)
         return data
 
     @classmethod
@@ -151,8 +147,7 @@ class ColorConsumer:
         del data["user"]
         del data["run"]
         del data["input"]
-        obj = jsonable_encoder(data)
-        js = json.dumps(obj)
+        js = json.dumps(data)
 
         ok = await self._pg_conn.execute(
             "INSERT INTO color_matches (usr, run, input, body) VALUES ($1, $2, $3, $4);",
