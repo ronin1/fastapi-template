@@ -103,5 +103,25 @@
             ],
             "justMyCode": true
         },
+        {
+            "name": "Debug: Loader (file)",  // attach to an existing worker container running via: make debug
+            "type": "debugpy",
+            "request": "launch",
+            "program": ".venv/bin/locust",
+            "args": [
+                "--headless",
+                "--users=1",
+                "--host=http://localhost:8000",
+                "-f",
+                "${file}"
+            ],
+            "gevent": true,
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "autoReload": {
+                "enable": false
+            }
+        },
     ]
 }

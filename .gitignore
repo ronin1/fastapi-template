@@ -6,3 +6,10 @@
 **/.pytest_cache
 
 !.env
+requirements.txt
+combined_requirements.txt
+
+*_exceptions.csv
+*_failures.csv
+*_stats.csv
+*_stats_history.csv

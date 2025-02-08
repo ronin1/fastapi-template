@@ -1,10 +1,10 @@
 from typing import Any, List
 import os
-import base64
+import json
 import binascii
-import pickle
 from datetime import datetime
 from fastapi import Request
+from fastapi.encoders import jsonable_encoder
 from redis import StrictRedis as Redis
 from logger_factory import get_logger
 from shared_schemas import ColorMatched, COLOR_LIST_NAME
@@ -36,10 +36,9 @@ class ColorMatcherWithPublisher(ColorMatcherABC):
             self.logger.error("Redis connection is not initialized")
             return
 
-        buf = pickle.dumps(data)
-        # s = buf.decode('utf-8')
-        s = base64.b64encode(buf)
-        self._redis.lpush(key_name, s)
+        obj = jsonable_encoder(data)
+        js = json.dumps(obj)
+        self._redis.lpush(key_name, js)
 
     def _publish_colors(self, colors: List[ColorMatched]):
         if self._redis is None:

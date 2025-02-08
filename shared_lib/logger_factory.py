@@ -56,13 +56,13 @@ def min_log_level() -> int:
     min_log = os.getenv("MIN_LOG_LEVEL", "INFO").upper()
     if min_log == "DEBUG":
         return logging.DEBUG
-    if min_log == "INFO":
+    if min_log == "INFO" or min_log == "INFORMATION":
         return logging.INFO
-    if min_log == "WARNING":
+    if min_log == "WARNING" or min_log == "WARN":
         return logging.WARNING
     if min_log == "ERROR":
         return logging.ERROR
-    if min_log == "CRITICAL":
+    if min_log == "CRITICAL" or min_log == "FATAL":
         return logging.CRITICAL
     return logging.NOTSET
 

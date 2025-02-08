@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile.api
     image: ${API_IMAGE_NAME:-color_api}
     mem_limit: 384M
-    cpu_shares: 384
+    cpu_shares: 512
     profiles:
       - api
       - all
@@ -42,7 +42,7 @@ services:
       dockerfile: Dockerfile.worker
     image: ${WORKER_IMAGE_NAME:-color_worker}
     mem_limit: 384M
-    cpu_shares: 384
+    cpu_shares: 512
     profiles:
       - worker
       - all
@@ -76,8 +76,8 @@ services:
 
   nginx:
     image: nginx:1-alpine
-    mem_limit: 256M
-    cpu_shares: 512
+    mem_limit: 64M
+    cpu_shares: 4096
     profiles:
       - api
       - all
@@ -90,10 +90,6 @@ services:
       - "${LOAD_BALANCER_PORT:-8000}:80"
     networks:
       - app-network
-    deploy:
-      replicas: ${LOAD_BALANCER_CLUSTER_SIZE:-1}
-      restart_policy:
-        condition: on-failure
 
   mem_db:
     image: redis:7-alpine

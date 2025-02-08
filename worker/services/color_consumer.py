@@ -1,13 +1,10 @@
 import asyncio
-import base64
 import os
-import pickle
 from datetime import datetime
 import random
 from typing import Any, Dict
 import json
 import asyncpg
-from fastapi.encoders import jsonable_encoder
 from logger_factory import get_logger
 from redis import StrictRedis as Redis
 from shared_schemas import COLOR_LIST_NAME
@@ -28,6 +25,7 @@ class ColorConsumer:
         self._empty_print_s = int(empty_print_s)  # seconds to wait between empty list reminders
         self._last_pull = datetime.now()
         self._last_mod = -1
+        self.logger.debug("ColorConsumer initialized w/ can_delay: %s", self.can_delay)
 
     @classmethod
     def _init_redis(cls):
@@ -71,21 +69,28 @@ class ColorConsumer:
             self.logger.error("Received message is None")
             return {}
         s: str = ""
-        if isinstance(msg, list) and len(msg) >= 1 and isinstance(msg[0], str):
+        if isinstance(msg, list) and len(msg) >= 1 and msg[0]:
             s = msg[0]
         if not s:
             self.logger.error("Received message payload is not a string: %s", msg)
             return {}
 
-        buf = base64.b64decode(s, validate=True)
-        data: Dict[str, Any] = pickle.loads(buf)
+        data: Dict[str, Any] = json.loads(s)
         return data
+
+    @classmethod
+    async def _delay(cls) -> None:
+        if cls.can_delay:
+            delay_ms = cls.min_delay
+            if cls.is_random_delay:
+                delay_ms = random.randint(cls.min_delay, cls.max_delay)
+            cls.logger.debug("Delaying for %dms before next message", delay_ms)
+            await asyncio.sleep(delay_ms / 1000)
 
     async def pull_event_loop(self) -> None:
         if self._empty_delay_s > 0:
             self.logger.info("Delaying for %fs before starting", self._empty_delay_s)
             await asyncio.sleep(self._empty_delay_s)
-
         if self._redis is None:
             self.logger.error("Redis connection is not initialized")
             return
@@ -110,15 +115,10 @@ class ColorConsumer:
                 self._last_pull = datetime.now()
                 data: Dict[str, Any] = self._unwrap(msg)
                 self.logger.debug("Received color match event: %s", data)
-
                 await self._write_to_db(data)
-                if self.can_delay:
-                    delay_ms = self.min_delay
-                    if self.is_random_delay:
-                        delay_ms = random.randint(self.min_delay, self.max_delay)
-                    self.logger.debug("Delaying for %dms before next message", delay_ms)
-                    await asyncio.sleep(delay_ms / 1000)
 
+                if self.can_delay:
+                    await self._delay()
             except Exception as e:  # pylint: disable=broad-except
                 self.logger.error("Failed to process message: %s", e)
                 await asyncio.sleep(1)
@@ -147,8 +147,7 @@ class ColorConsumer:
         del data["user"]
         del data["run"]
         del data["input"]
-        obj = jsonable_encoder(data)
-        js = json.dumps(obj)
+        js = json.dumps(data)
 
         ok = await self._pg_conn.execute(
             "INSERT INTO color_matches (usr, run, input, body) VALUES ($1, $2, $3, $4);",

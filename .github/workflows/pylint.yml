@@ -7,6 +7,7 @@ on:
       - '**/*.py'
       - '**/*equirements.txt'
       - '*.ini'
+      - 'Makefile'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,30 +28,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-
-        cat shared_lib/requirements.txt > combined_requirements.txt
-        echo '' >> combined_requirements.txt
-        cat api/requirements.txt >> combined_requirements.txt
-        echo '' >> combined_requirements.txt
-        cat worker/requirements.txt >> combined_requirements.txt
-        echo '' >> combined_requirements.txt
-        cat ci_requirements.txt >> combined_requirements.txt
-        echo '' >> combined_requirements.txt
-
-        sort -u combined_requirements.txt > requirements.txt
-        echo 'combined & unique requirement file:'
-        cat requirements.txt
-        echo ''
-        
-        echo 'installing requirements:'
-        echo ''
-        pip install -r requirements.txt
+        make pip-install
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=C0114,C0115,C0116,R0903,R0801 $(git ls-files '*.py')
+        pylint --disable=C0114,C0115,C0116,R0903,R0801,R1714 $(git ls-files '*.py')
     - name: Type check ./shared_lib with mypy
       run: |
-        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+        mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
           --ignore-missing-imports --show-column-numbers --namespace-packages \
           --explicit-package-bases ./shared_lib
     - name: Type check ./api with mypy
@@ -63,4 +47,8 @@ jobs:
         MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
           --ignore-missing-imports --show-column-numbers --namespace-packages \
           --explicit-package-bases ./worker
-        
+    - name: Type check ./loader with mypy
+      run: |
+        MYPYPATH=shared_lib mypy --config-file=./mypy.ini --install-types --fast-module-lookup \
+          --ignore-missing-imports --show-column-numbers --namespace-packages \
+          --explicit-package-bases ./loader

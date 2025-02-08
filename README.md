@@ -198,11 +198,10 @@ $ make run-db
 # It will create an virtual environment with all depdencies installed at ./.venv.
 $ python3 -m venv .venv
 $ source .venv/bin/activate
-# now install all packages
-$ pip3 install -r shared_lib/requirements.txt
-$ pip3 install -r api/requirements.txt
-$ pip3 install -r worker/requirements.txt
 # you only need to do these above steps once
+# Now install all packages. You can repeat this as new packages are added by you
+$ make pip-install
+
 
 # if you're not running the above, active your virtual environment
 $ source .venv/bin/active
@@ -256,11 +255,54 @@ Local `./api`, `./worker`, & `./shared_lib` is mounted in the launched docker co
 - `make debug` by default does not pause the container and wait for a debugger to be attached.  If you need this behavior, simply edit `.env` file and toggle the following env vars for the appropriate container.
 - Runing in container debug mode will also persists Redis & Postgres data. In all other mode all database data are not kept on container exit with `make stop`
 
-
 ```env
 # set value to 1 if you want these container to wait for an attach debugger before starting via: make debug
 API_DEBUG_PAUSE=0
 WORKER_DEBUG_PAUSE=0
 ```
 
-Happy Debugging 👾 🎉
+### Load Testing (with Locust)
+
+This project use [Locust](https://locust.io/) for load testing. First, launch the cluster:
+
+```bash
+# this will launch a cluster with 2 Workers & 2 APIs & minimal logging from our app containers
+# you should only see nginx logs by design for each request
+# artificial delay on all endpoints are also disabled for maximum performance
+$ MIN_LOG_LEVEL=WARN make run-cluster
+```
+
+Then, in another shell:
+
+```bash
+# run the simple ping test. It will do health check for nginx, API & Worker containers only
+$ make load-ping
+# this will spawn 4 requests threads by default, you can change the number of threads to 1 like so:
+$ make load-ping LOCUST_USERS=1
+```
+
+Issue `Ctrl+C` when you want it to stop & status should be printed out on the console.
+
+To run full load test on API color endpoints that writes data; assuming the cluster is still running, do the following:
+
+```bash
+# this will make requests to all API endpoints that are not the standard ping
+$ make load-test
+```
+
+#### Debugging a Locust Test
+
+A new vscode debugging profile was added: `Debug: Loader (file)`. To use it:
+
+- Put a break point on the test file that you're debugging
+- Make sure you're focused on that file in vsCode (if there are multiple tabs open)
+- Launch the profile `Debug: Loader (file)`
+- Your breakpoint should stop
+
+**NOTE:**
+
+- by default, only 1 thread is setup for this debugging profile.
+- The profile assumes you have virtual environment setup (as mentioned above) at `./.venv` & you've ran `make pip-setup` after this feature was added
+- Container run of Locust is not yet setup
+
+Happy Hacking 👾 🎉
