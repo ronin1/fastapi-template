@@ -268,6 +268,7 @@ This project use [Locust](https://locust.io/) for load testing. First, launch th
 ```bash
 # this will launch a cluster with 2 Workers & 2 APIs & minimal logging from our app containers
 # you should only see nginx logs by design for each request
+# artificial delay on all endpoints are also disabled for maximum performance
 $ MIN_LOG_LEVEL=WARN make run-cluster
 ```
 
@@ -298,6 +299,10 @@ A new vscode debugging profile was added: `Debug: Loader (file)`. To use it:
 - Launch the profile `Debug: Loader (file)`
 - Your breakpoint should stop
 
-**NOTE**: by default, only 1 thread is setup for this debugging profile. It also assumes you have virtual environment setup (as mentioned above) at `./.venv`
+**NOTE:**
+
+- by default, only 1 thread is setup for this debugging profile.
+- The profile assumes you have virtual environment setup (as mentioned above) at `./.venv` & you've ran `make pip-setup` after this feature was added
+- Container run of Locust is not yet setup
 
 Happy Hacking 👾 🎉
