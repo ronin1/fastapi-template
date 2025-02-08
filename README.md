@@ -277,7 +277,7 @@ Then, in another shell:
 ```bash
 # run the simple ping test. It will do health check for nginx, API & Worker containers only
 $ make load-ping
-# this will spawn 20 requests threads by default, you can change the number of threads to 1 like so:
+# this will spawn 4 requests threads by default, you can change the number of threads to 1 like so:
 $ make load-ping LOCUST_USERS=1
 ```
 

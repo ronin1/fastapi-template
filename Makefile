@@ -120,12 +120,14 @@ test-color-error:
 
 # only hit load endpoints
 load-ping:
-	@locust --headless -f loader/ping_only.py -u ${LOCUST_USERS} -r ${LOCUST_SPAWN_RATE} \
+	@locust --headless -f loader/ping_only.py \
+		-u ${LOCUST_USERS} -r ${LOCUST_SPAWN_RATE} -t ${LOCUST_DUR} \
 		--host='http://localhost:${LOAD_BALANCER_PORT}'
 
 # hit all endpoints all at once
 load-test:
 	API_DELAY_MIN=$(API_DELAY_MIN) API_DELAY_MAX=$(API_DELAY_MAX) \
 	WORKER_DELAY_MIN=$(WORKER_DELAY_MIN) WORKER_DELAY_MAX=$(WORKER_DELAY_MAX) \
-		locust --headless -f loader/color_endpoints.py -u ${LOCUST_USERS} -r ${LOCUST_SPAWN_RATE} \
+		locust --headless -f loader/color_endpoints.py \
+			-u ${LOCUST_USERS} -r ${LOCUST_SPAWN_RATE} -t ${LOCUST_DUR} \
 			--host='http://localhost:${LOAD_BALANCER_PORT}'
