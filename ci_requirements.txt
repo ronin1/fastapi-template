@@ -1,4 +1,4 @@
-pylint>=3.3.0
+pylint>=4.0.5
 mypy>=1.15.0
 # type packages for mypy type checking
 types-PyYAML
